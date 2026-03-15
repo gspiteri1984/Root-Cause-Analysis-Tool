@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Aviathrust RCA Toolbox</title>
+<script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
+<style>
+:root,[data-theme="dark"]{--bg:#0B1623;--surface:#111D2E;--card:#162236;--border:#253A54;--accent:#1A6FC4;--gold:#D4A843;--green:#27AE60;--red:#C0392B;--amber:#E87722;--purple:#7B2D8B;--teal:#00A693;--text:#E8EDF3;--muted:#8A9BB5;--dim:#4A6078;--white:#fff;--hdr-bg:#111D2E;--hdr-text:#E8EDF3;--btn-bg:#162236;--btn-text:#E8EDF3;--btn-bdr:#253A54;--tab-bg:#111D2E;--tab-act:#fff;--sb-bg:#111D2E;--sb-act:#162236;--sb-act-t:#fff;--inp-bg:#0B1623;--shadow:none;--inner:#0B1623;--root-bg:#27AE6008;--mct-bg:#0B1623;--status:#111D2E;--pri-t:#fff;--fish:#162236;--font:'Segoe UI',Calibri,sans-serif;--title:'Century Gothic','Segoe UI',sans-serif}
+[data-theme="light"]{--bg:#F2F5F8;--surface:#FFF;--card:#FFF;--border:#D0D8E2;--accent:#1A5FAA;--gold:#A37600;--green:#1A7A40;--red:#B83025;--amber:#C46010;--purple:#5C1D78;--teal:#00796B;--text:#1A2B3D;--muted:#4A6078;--dim:#8A9BB5;--white:#1A2B3D;--hdr-bg:#1B3055;--hdr-text:#FFF;--btn-bg:#243D5C;--btn-text:#E0E8F0;--btn-bdr:#3A5575;--tab-bg:#E8ECF2;--tab-act:#1A2B3D;--sb-bg:#EDF0F5;--sb-act:#D8E4F0;--sb-act-t:#1A2B3D;--inp-bg:#FFF;--shadow:0 1px 4px #0000000a;--inner:#F7F9FB;--root-bg:#1A7A4010;--mct-bg:#F0F3F7;--status:#E8ECF2;--pri-t:#0D2240;--fish:#EDF1F6}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;display:flex;flex-direction:column}
+button{font-family:var(--font);cursor:pointer}
+input,textarea,select{font-family:var(--font);background:var(--inp-bg);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:8px 12px;font-size:14px;width:100%}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px #1A6FC425}
+textarea{resize:vertical;min-height:60px}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238A9BB5' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+label{font-size:13px;color:var(--muted);font-weight:600;display:block;margin-bottom:4px}
+.hdr{background:var(--hdr-bg);border-bottom:2px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:14px}
+.hdr h1{font-family:var(--title);font-size:20px;font-weight:bold;flex:1;color:var(--hdr-text)}
+.hdr .badge{background:var(--accent);color:#fff;font-size:11px;padding:3px 10px;border-radius:4px;font-weight:bold}
+.ha{display:flex;gap:8px}
+.hb{padding:6px 14px;border-radius:6px;font-size:13px;font-weight:bold;border:1.5px solid var(--btn-bdr);background:var(--btn-bg);color:var(--btn-text);display:flex;align-items:center;gap:6px;transition:all .2s}
+.hb:hover{opacity:.85}.hb.p{background:var(--accent);border-color:var(--accent);color:#fff}
+.hb.g{background:var(--green);border-color:var(--green);color:#fff}
+.hb.go{background:var(--gold);border-color:var(--gold);color:#000}
+.app{display:flex;flex:1;overflow:hidden}
+.sidebar{width:220px;background:var(--sb-bg);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.sbt{padding:14px 16px 8px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:700}
+.sbl{flex:1;overflow-y:auto;padding:0 8px 8px}
+.si{padding:10px 12px;border-radius:6px;cursor:pointer;font-size:14px;margin-bottom:2px;transition:all .15s;border-left:3px solid transparent}
+.si:hover{background:var(--card)}.si.a{background:var(--sb-act);border-left-color:var(--accent);color:var(--sb-act-t)}
+.si b{display:block}.si small{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;margin-top:2px}
+.sn{margin:8px;padding:10px;border-radius:6px;background:var(--accent);color:#fff;border:none;font-size:14px;font-weight:bold;text-align:center}
+.sn:hover{filter:brightness(1.15)}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.tabs{display:flex;background:var(--tab-bg);border-bottom:2px solid var(--border);overflow-x:auto}
+.tab{padding:12px 14px;font-size:13px;font-weight:600;color:var(--muted);border:none;background:none;position:relative;transition:all .2s;white-space:nowrap}
+.tab:hover{color:var(--text)}.tab.a{color:var(--tab-act)}.tab.a::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:2px;background:var(--accent)}
+.ws{flex:1;overflow-y:auto;padding:20px 24px}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:14px}.fg .f{grid-column:1/-1}
+.cd{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:18px;margin-bottom:14px;box-shadow:var(--shadow)}
+.cd h3{font-size:17px;margin-bottom:10px;font-family:var(--title)}
+.wc{position:relative;padding-left:28px}.wc::before{content:'';position:absolute;left:12px;top:20px;bottom:20px;width:3px;background:var(--border);border-radius:2px}
+.wr{position:relative;margin-bottom:12px}.wr .nm{position:absolute;left:-28px;top:14px;width:24px;height:24px;border-radius:50%;text-align:center;line-height:24px;font-size:12px;font-weight:bold;color:#fff;z-index:1}
+.wr .in{background:var(--inner);border:1px solid var(--border);border-radius:8px;padding:14px}
+.wr.rt .in{border-color:var(--green);background:var(--root-bg)}
+.rf{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+.mb{margin-top:10px;padding:12px;background:var(--mct-bg);border:1px solid var(--border);border-radius:6px}
+.mb label{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--text);margin-right:16px;cursor:pointer;font-weight:normal}
+.mb input[type=checkbox]{width:auto;accent-color:var(--green)}
+.mp{color:var(--green);font-weight:bold;font-size:13px;margin-top:6px}
+.isw{border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:14px;background:var(--fish)}
+.isw svg{display:block;width:100%;height:auto}
+.bp{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+.bn{background:var(--card);border-radius:8px;padding:14px;border-top:3px solid}
+.bn h4{font-size:15px;margin-bottom:8px}
+.ci{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)}
+.ci:last-child{border-bottom:none}
+.ci input[type=checkbox]{width:auto;margin-top:4px;accent-color:var(--gold)}
+.ct{flex:1;font-size:14px}.ct.pr{font-weight:bold;color:var(--pri-t)}
+.db{background:none;border:none;color:var(--dim);font-size:16px;padding:2px 6px;cursor:pointer}.db:hover{color:var(--red)}
+.ar{display:flex;gap:8px;margin-top:8px}.ar input{flex:1;font-size:13px;padding:6px 10px}
+.ar button{padding:6px 12px;border:none;border-radius:4px;font-size:13px;font-weight:bold;white-space:nowrap}
+.iw{margin-top:8px;padding:10px;background:var(--mct-bg);border-radius:6px;border:1px solid var(--border)}
+.iw h5{font-size:13px;margin-bottom:6px}
+.is{display:flex;gap:8px;margin-bottom:6px;align-items:flex-start}
+.is .in2{min-width:22px;height:22px;border-radius:50%;text-align:center;line-height:22px;font-size:11px;font-weight:bold;color:#fff;flex-shrink:0;margin-top:4px}
+.is input{font-size:13px;padding:5px 8px}
+.cr{display:grid;grid-template-columns:0.8fr 2fr 1fr 0.8fr 0.8fr 1.5fr;gap:8px;margin-bottom:8px;align-items:start}
+.cr input,.cr textarea{font-size:13px;padding:6px 8px}.cr textarea{min-height:40px}
+.sb2{background:var(--status);border-top:1px solid var(--border);padding:6px 20px;font-size:12px;color:var(--muted);display:flex;justify-content:space-between}
+.em{text-align:center;padding:60px 20px;color:var(--dim)}.em h2{font-size:22px;margin-bottom:8px;color:var(--muted)}.em p{font-size:15px;margin-bottom:20px}
+/* Boeing form styles */
+.bf-section{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:18px;margin-bottom:14px;box-shadow:var(--shadow)}
+.bf-section h3{font-size:17px;margin-bottom:6px;font-family:var(--title);padding-bottom:8px;border-bottom:2px solid var(--border)}
+.bf-section h4{font-size:15px;margin:14px 0 8px;color:var(--accent);font-family:var(--title)}
+.bf-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bf-grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.bf-grid4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}
+.bf-cb{display:flex;align-items:flex-start;gap:8px;padding:5px 8px;border-radius:4px;cursor:pointer;font-size:13px;font-weight:normal;transition:background .15s;border:1px solid transparent}
+.bf-cb:hover{background:var(--inner)}
+.bf-cb.sel{background:var(--accent)18;border-color:var(--accent);font-weight:600}
+.bf-cb input[type=checkbox],.bf-cb input[type=radio]{width:auto;flex-shrink:0;margin-top:2px}
+.bf-cat{border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:12px;border-left:4px solid var(--accent)}
+.bf-cat h4{margin:0 0 8px;font-size:14px;font-weight:bold;color:var(--accent)}
+.bf-cat .bf-desc{font-size:12px;color:var(--dim);margin-bottom:8px;font-style:italic}
+.bf-sf-group{margin-bottom:16px;border:1px solid var(--border);border-radius:8px;padding:14px;background:var(--inner)}
+.bf-sf-group h4{font-size:14px;font-weight:bold;margin-bottom:8px;color:var(--text)}
+.bf-nav{display:flex;gap:0;margin-bottom:16px;background:var(--tab-bg);border-radius:8px;overflow:hidden;border:1px solid var(--border);flex-wrap:wrap}
+.bf-nav-item{flex:1;min-width:80px;padding:10px 6px;text-align:center;cursor:pointer;font-size:12px;font-weight:bold;color:var(--dim);border-right:1px solid var(--border);transition:all .15s}
+.bf-nav-item:last-child{border-right:none}
+.bf-nav-item:hover{color:var(--text)}
+.bf-nav-item.act{color:#fff}
+.bf-nav-item.done{color:var(--green)}
+@media print{
+  .hdr,.sidebar,.tabs,.sb2,.ha,.bf-nav,.no-print{display:none!important}
+  .app{display:block}.main{overflow:visible}.ws{padding:10px}
+  .bf-section{break-inside:avoid;page-break-inside:avoid;border:1px solid #999;box-shadow:none}
+  .bf-section h3{border-bottom:2px solid #333;color:#000}
+  .bf-cb{font-size:11px;padding:2px 4px}
+  body{background:#fff;color:#000;font-size:11px}
+  .cd{border:1px solid #999;box-shadow:none}
+  input,textarea{border:1px solid #999;background:#fff;color:#000}
+}
+@media(max-width:900px){.sidebar{display:none}.bp{grid-template-columns:1fr}.fg{grid-template-columns:1fr}.cr{grid-template-columns:1fr}.bf-grid{grid-template-columns:1fr}.bf-grid3{grid-template-columns:1fr 1fr}.bf-grid4{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<!-- DISCLAIMER MODAL -->
+<div id="disclaimerOverlay" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;padding:20px">
+<div style="background:#111D2E;border:2px solid #253A54;border-radius:12px;max-width:720px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 24px 80px rgba(0,0,0,0.6)">
+  <div style="background:#1B3055;padding:20px 28px;border-radius:10px 10px 0 0;border-bottom:3px solid #C0392B">
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="font-size:28px">&#9888;</span>
+      <div>
+        <h2 style="font-family:'Century Gothic','Segoe UI',sans-serif;font-size:22px;color:#fff;margin:0">Legal Disclaimer &amp; Terms of Use</h2>
+        <p style="font-size:13px;color:#8A9BB5;margin:4px 0 0">Aviathrust Root Cause Analysis Toolbox</p>
+      </div>
+    </div>
+  </div>
+  <div style="padding:24px 28px;font-family:'Segoe UI',Calibri,sans-serif;font-size:14px;color:#C8D4E2;line-height:1.7">
+    <p style="margin-bottom:14px">BY USING THIS TOOL, YOU ACKNOWLEDGE AND AGREE TO THE FOLLOWING TERMS. PLEASE READ CAREFULLY BEFORE PROCEEDING.</p>
+
+    <p style="margin-bottom:10px;font-weight:bold;color:#E8EDF3">1. No Warranty</p>
+    <p style="margin-bottom:14px">This tool is provided <strong>"AS IS"</strong> and <strong>"AS AVAILABLE"</strong> without warranty of any kind, whether express, implied, statutory, or otherwise. Aviathrust and Ing. George Spiteri make no representations or warranties regarding the accuracy, reliability, completeness, suitability, or availability of this tool or any data, output, or results generated by it.</p>
+
+    <p style="margin-bottom:10px;font-weight:bold;color:#E8EDF3">2. Limitation of Liability</p>
+    <p style="margin-bottom:14px"><strong>Aviathrust</strong> and <strong>Ing. George Spiteri</strong> shall not be held responsible or liable for any direct, indirect, incidental, consequential, special, or exemplary damages arising out of or in connection with the use of, inability to use, or reliance upon this tool. This includes, without limitation, any loss of data, corruption of data, errors in output, system malfunctions, business interruption, or any other technical or operational issues, regardless of the cause.</p>
+
+    <p style="margin-bottom:10px;font-weight:bold;color:#E8EDF3">3. Data Responsibility</p>
+    <p style="margin-bottom:14px">All data entered into this tool is stored locally within your web browser. Aviathrust and Ing. George Spiteri do not collect, transmit, store, or have access to any data you enter. You are solely responsible for the accuracy, completeness, backup, and security of your data. Loss of data due to browser clearing, device failure, software updates, or any other cause is entirely at your own risk.</p>
+
+    <p style="margin-bottom:10px;font-weight:bold;color:#E8EDF3">4. Professional Judgement</p>
+    <p style="margin-bottom:14px">This tool is intended as a <strong>support aid</strong> for root cause analysis, investigation documentation, and CAPA management. It does not replace professional judgement, regulatory compliance processes, or organisational quality management procedures. The user bears full responsibility for verifying all outputs, ensuring regulatory compliance, and making decisions based on their own professional competence and the applicable regulatory framework (including but not limited to EASA Part-145, Part-CAMO, and ISO standards).</p>
+
+    <p style="margin-bottom:10px;font-weight:bold;color:#E8EDF3">5. Boeing MEDA &amp; REDA</p>
+    <p style="margin-bottom:14px">The MEDA and REDA form structures incorporated within this tool are based on publicly available Boeing copyrighted materials. This tool is not endorsed by, affiliated with, or certified by The Boeing Company. Users must ensure their use of MEDA/REDA processes complies with any applicable licensing or training requirements from Boeing.</p>
+
+    <p style="margin-bottom:10px;font-weight:bold;color:#E8EDF3">6. Assumption of Risk</p>
+    <p style="margin-bottom:14px">By accepting these terms, you acknowledge that the decision to use this tool is made entirely at your own discretion and risk. You accept full responsibility for any outcomes, actions, or decisions arising from the use of this tool.</p>
+
+    <p style="margin-bottom:10px;font-weight:bold;color:#E8EDF3">7. Governing Law</p>
+    <p style="margin-bottom:14px">These terms shall be governed by and construed in accordance with the laws of the Republic of Malta, without regard to conflict of law principles.</p>
+
+    <div style="margin-top:20px;padding:16px;background:#0B1623;border:1px solid #253A54;border-radius:8px;text-align:center">
+      <p style="margin-bottom:16px;font-size:15px;color:#E8EDF3;font-weight:bold">Do you accept these terms and conditions?</p>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <button onclick="acceptDisclaimer()" style="padding:12px 36px;border-radius:8px;font-size:15px;font-weight:bold;border:2px solid #27AE60;background:#27AE60;color:#fff;cursor:pointer;font-family:'Segoe UI',Calibri,sans-serif;transition:all .2s">I Accept</button>
+        <button onclick="declineDisclaimer()" style="padding:12px 36px;border-radius:8px;font-size:15px;font-weight:bold;border:2px solid #C0392B;background:transparent;color:#C0392B;cursor:pointer;font-family:'Segoe UI',Calibri,sans-serif;transition:all .2s">I Do Not Accept</button>
+      </div>
+    </div>
+  </div>
+  <div style="padding:12px 28px;border-top:1px solid #253A54;text-align:center">
+    <p style="font-size:11px;color:#4A6078;margin:0">&copy; Aviathrust &mdash; Ing. George Spiteri &mdash; All rights reserved</p>
+  </div>
+</div>
+</div>
+<div id="appWrap" style="display:none;flex-direction:column;min-height:100vh">
+<div class="hdr">
+  <span class="badge">RCA TOOLBOX</span>
+  <h1>Aviathrust Root Cause Analysis Toolbox</h1>
+  <div class="ha">
+    <button class="hb" onclick="togTheme()" id="thBtn">Light</button>
+    <button class="hb" onclick="loadFile()">Load</button>
+    <button class="hb go" onclick="saveFile()">Save</button>
+    <button class="hb g" onclick="sTab('report')">Report</button>
+  </div>
+</div>
+<div class="app">
+  <div class="sidebar">
+    <div class="sbt">Investigations</div>
+    <div class="sbl" id="sbl"></div>
+    <button class="sn" onclick="newInv()">+ New Investigation</button>
+  </div>
+  <div class="main">
+    <div class="tabs" id="tbar"></div>
+    <div class="ws" id="ws"></div>
+  </div>
+</div>
+<div class="sb2"><span id="stL">Ready</span><span id="stR">Auto-saved</span></div>
+<input type="file" id="fi" accept=".json" style="display:none" onchange="onLoad(event)">
+</div><!-- end appWrap -->
+<script>
+// ==================== BONE MAP (Ishikawa) ====================
+var BM={man:{l:'MAN',c:'#7B2D8B',p:'Fatigue, training, experience, skill, communication'},machine:{l:'MACHINE',c:'#E87722',p:'Tools, calibration, equipment, GSE, serviceability'},method:{l:'METHOD',c:'#1A6FC4',p:'Procedures, work cards, AMM revision, task sequence'},material:{l:'MATERIAL',c:'#00A693',p:'Part traceability, P/N, storage, shelf life'},environment:{l:'ENVIRONMENT',c:'#27AE60',p:'Lighting, temperature, noise, access, weather'},management:{l:'MANAGEMENT',c:'#C0392B',p:'Supervision, staffing, workload, policy, culture'}};
+
+// ==================== MEDA DATA (Rev N, Feb 2022) ====================
+var MEDA_EVENTS = {
+  ops:[{id:'delay',l:'Flight Delay'},{id:'cancel',l:'Flight Cancellation'},{id:'gate_return',l:'Gate Return'},{id:'ifsd',l:'In-Flight Shut Down'},{id:'atb',l:'Air Turn-Back'},{id:'diversion',l:'Diversion'},{id:'smoke',l:'Smoke/fumes/odor event'},{id:'ops_other',l:'Other'}],
+  other:[{id:'ac_damage',l:'Aircraft Damage Event'},{id:'personal_injury',l:'Personal Injury Event'},{id:'rework',l:'Rework (e.g., did not pass Ops check/inspection)'},{id:'airworthiness',l:'Airworthiness Control'},{id:'found_mx',l:'Found during Maintenance'},{id:'found_flight',l:'Found during Flight'},{id:'event_other',l:'Other Event'}]
+};
+var MEDA_SYS_FAILURES = [
+  {id:'install',l:'1. Installation Failure',items:[{id:'a',l:'Equipment/part not installed'},{id:'b',l:'Wrong equipment/part installed'},{id:'c',l:'Wrong orientation'},{id:'d',l:'Improper location'},{id:'e',l:'Incomplete installation'},{id:'f',l:'Extra parts installed'},{id:'g',l:'Access not closed'},{id:'h',l:'System/equipment not reactivated/deactivated'},{id:'i',l:'Damaged on remove/replace'},{id:'j',l:'Cross connection'},{id:'k',l:'Mis-rigging (controls, doors, etc.)'},{id:'l',l:'Consumable not used'},{id:'m',l:'Wrong consumable used'},{id:'n',l:'Unserviceable part installed'},{id:'o',l:'Other'}]},
+  {id:'servicing',l:'2. Servicing Failure',items:[{id:'a',l:'Not enough fluid'},{id:'b',l:'Too much fluid'},{id:'c',l:'Wrong fluid type'},{id:'d',l:'Required servicing not performed'},{id:'e',l:'Access not closed'},{id:'f',l:'System/equipment not deactivated/reactivated'},{id:'g',l:'Other'}]},
+  {id:'repair',l:'3. Repair Failure',items:[{id:'a',l:'Incorrect'},{id:'b',l:'Unapproved'},{id:'c',l:'Incomplete'},{id:'d',l:'Other'}]},
+  {id:'fault',l:'4. Fault Isolation/Test/Inspection Failure',items:[{id:'a',l:'Did not detect fault'},{id:'b',l:'Not found by fault isolation'},{id:'c',l:'Not found by operational/functional test'},{id:'d',l:'Not found by task inspection'},{id:'e',l:'Access not closed'},{id:'f',l:'System/equipment not deactivated/reactivated'},{id:'g',l:'Not found by part inspection'},{id:'h',l:'Not found by visual inspection'},{id:'i',l:'Technical log oversight'},{id:'j',l:'Other'}]},
+  {id:'fod',l:'5. Foreign Object Damage/Debris',items:[{id:'a',l:'Tooling/equipment left in aircraft/engine'},{id:'b',l:'Debris on ramp'},{id:'c',l:'Debris falling into open systems'},{id:'d',l:'Other'}]},
+  {id:'ac_equip_dmg',l:'6. Airplane/Equipment Damage',items:[{id:'a',l:'Tools/equipment used improperly'},{id:'b',l:'Defective tools/equipment used'},{id:'c',l:'Struck by/against'},{id:'d',l:'Pulled/pushed/drove into'},{id:'e',l:'Fire/smoke'},{id:'f',l:'Other'}]},
+  {id:'pi',l:'7. Personal Injury',items:[{id:'a',l:'Slip/trip/fall'},{id:'b',l:'Caught in/on/between'},{id:'c',l:'Struck by/against'},{id:'d',l:'Hazard contacted (electricity, hot/cold/sharp surfaces)'},{id:'e',l:'Hazardous substance exposure (toxic/noxious)'},{id:'f',l:'Hazardous thermal environment exposure'},{id:'g',l:'Other'}]},
+  {id:'mx_control',l:'8. Maintenance Control Failure',items:[{id:'a',l:'Scheduled task omitted/late/incorrect'},{id:'b',l:'MEL interpretation/application/removal'},{id:'c',l:'CDL interpretation/application/removal'},{id:'d',l:'Incorrectly deferred/controlled defect'},{id:'e',l:'Airworthiness data interpretation'},{id:'f',l:'Technical log oversight'},{id:'g',l:'Airworthiness Directive overrun'},{id:'h',l:'Modification control'},{id:'i',l:'Configuration control'},{id:'j',l:'Records control'},{id:'k',l:'Component robbery control'},{id:'l',l:'Mx information system (entry or update)'},{id:'m',l:'Time expired part on board aircraft'},{id:'n',l:'Tooling control'},{id:'o',l:'Mx task not correctly documented'},{id:'p',l:'Not authorized/qualified/certified to do task'},{id:'q',l:'Other'}]},
+  {id:'other',l:'9. Other',items:[]}
+];
+var MEDA_CF = [
+  {id:'A',l:'A. Information',desc:'Work cards, maintenance manuals, service bulletins, maintenance tips, non-routines, illustrated parts catalogs, etc.',items:['Not understandable','Unavailable/inaccessible','Incorrect','Too much/conflicting information','Update process is too long/complicated','Incorrectly modified manufacturer\'s MM/SB','Information not used','Inadequate','Uncontrolled','Other'],c:'#1A6FC4'},
+  {id:'B',l:'B. Ground Support Equipment/Tools/Safety Equipment',desc:'Personal Protective Equipment (PPE) and Collective Protective Equipment (CPE)',items:['Unsafe','Unreliable','Layout of controls or displays','Out of calibration','Unavailable','Inappropriate for the task','Cannot use in intended environment','No instructions','Too complicated','Incorrectly labeled/marked','Not used','Incorrectly used','Inaccessible','Past expiration date','Other'],c:'#E87722'},
+  {id:'C',l:'C. Aircraft Design/Configuration/Parts/Equipment/Consumables',desc:'',items:['Complex','Inaccessible','Aircraft configuration variability','Parts/equipment unavailable','Parts/equipment incorrectly labeled','Inappropriate for the task','Easy to install incorrectly','Not used','Not user friendly','Consumable unavailable','Wrong consumable used','Expired consumable used','Other'],c:'#00A693'},
+  {id:'D',l:'D. Job/Task',desc:'',items:['Repetitive/monotonous','Complex/confusing','New task or task change','Different from other similar tasks','Other'],c:'#7B2D8B'},
+  {id:'E',l:'E. Knowledge/Skills',desc:'',items:['Technical skills','Task knowledge','Task planning','Airline process knowledge','Aircraft system knowledge','English language proficiency','Teamwork skills','Computing skills','Other'],c:'#0891B2'},
+  {id:'F',l:'F. Individual Factors',desc:'',items:['Physical health (including hearing and sight)','Fatigue','Time pressure','Peer pressure','Complacency','Body size/strength','Personal event (e.g., family problem)','Task distractions/interruptions','Memory lapse (forgot)','Visual perception','Lack of assertiveness','Stress','Situation awareness','Workload/task saturation','Other'],c:'#D4A843'},
+  {id:'G',l:'G. Environment/Facilities',desc:'',items:['High noise levels','Hot','Cold','Humidity','Rain','Snow','Wind','Lighting','Vibrations','Cleanliness','Hazardous/toxic substances','Power sources','Inadequate ventilation','Markings','Labels/placards/signage','Confined space','Other'],c:'#27AE60'},
+  {id:'H',l:'H. Organizational Factors',desc:'',items:['Quality of support from Technical Organizations','Company policies','Not enough staff','Corporate change/restructuring','Union action','Work process/procedure','Work process/procedure not followed','Work process/procedure not documented (tribal knowledge)','Work group normal practice (norm)','Team building','Other'],c:'#C0392B'},
+  {id:'I',l:'I. Leadership/Supervision',desc:'',items:['Planning/organization of tasks','Prioritization of work','Delegation/assignment of task','Unrealistic attitude/expectations','Does not assure approved process/procedure is followed','Amount of supervision','Other'],c:'#556B82'},
+  {id:'J',l:'J. Communication',desc:'',items:['Between departments','Between mechanics','Between shifts','Between maintenance crew and lead','Between lead and management','Between flight crew and maintenance','Other'],c:'#8B5CF6'}
+];
+
+// ==================== REDA DATA (Rev J, March 2022) ====================
+var REDA_EVENTS = [
+  {id:'ac_dmg',l:'1. Aircraft Damage Event',items:[{id:'a',l:'Cargo door'},{id:'b',l:'Passenger door'},{id:'c',l:'Tail'},{id:'d',l:'Nose/radome'},{id:'e',l:'Wing/flaps/slats/ailerons'},{id:'f',l:'Engine/cowl'},{id:'g',l:'Landing gear/doors'},{id:'h',l:'Antenna/masts'},{id:'i',l:'Other'}]},
+  {id:'eq_dmg',l:'2. Equipment Damage Event',items:[{id:'a',l:'Bag tug/cart'},{id:'b',l:'Loading bridge/jetbridge'},{id:'c',l:'Belt loader'},{id:'d',l:'Container loader'},{id:'e',l:'Trucks (lav/fueling/water/etc.)'},{id:'f',l:'Other'}]},
+  {id:'ops',l:'3. Operational Process Event',items:[{id:'a',l:'Flight delay'},{id:'b',l:'Flight cancellation'},{id:'c',l:'Ground interrupt/gate return/rejected takeoff'},{id:'d',l:'Air interrupt (return to field/diversion)'},{id:'e',l:'Other'}]},
+  {id:'pi',l:'4. Personal Injury Event',items:[{id:'a',l:'Strain'},{id:'b',l:'Sprain'},{id:'c',l:'Laceration'},{id:'d',l:'Contusion'},{id:'e',l:'Fracture'},{id:'f',l:'Other'}]},
+  {id:'env',l:'5. Environmental Impact Event',items:[{id:'a',l:'Spill'},{id:'b',l:'Release'},{id:'c',l:'Contamination'},{id:'d',l:'Other'}]},
+  {id:'wb',l:'6. Weight & Balance/Cargo Event',items:[{id:'a',l:'Exceeded weight/CG limits'},{id:'b',l:'Cargo shifted'},{id:'c',l:'Cargo release in aircraft'},{id:'d',l:'Live animals (death, escape, etc.)'},{id:'e',l:'Dangerous goods incorrectly shipped'},{id:'f',l:'ULD failure/used unserviceable ULD'},{id:'g',l:'Technically unairworthy conditions'},{id:'h',l:'Spill in aircraft'},{id:'i',l:'Contamination of aircraft'},{id:'j',l:'Other'}]},
+  {id:'other',l:'7. Other Event',items:[]}
+];
+var REDA_SYS_FAILURES = [
+  {id:'equip',l:'1. Equipment/Tools',items:[{id:'a',l:'Driven/pushed/towed into'},{id:'b',l:'Not for intended use'},{id:'c',l:'Defective equipment'},{id:'d',l:'Incorrectly operated'},{id:'e',l:'Equipment left in wrong place'},{id:'f',l:'Signal/connectivity'},{id:'g',l:'Battery (e.g., electrical GSE)'},{id:'h',l:'Other'}]},
+  {id:'fod',l:'2. Foreign Object Damage (FOD)',items:[{id:'a',l:'Material left on ramp'},{id:'b',l:'Material dropped into open system'},{id:'c',l:'Material left in aircraft/engine'},{id:'d',l:'Failure to see foreign objects on ramp'},{id:'e',l:'Other'}]},
+  {id:'servicing',l:'3. Aircraft Servicing',items:[{id:'a',l:'Servicing not performed'},{id:'b',l:'Servicing not performed in required time'},{id:'c',l:'Not enough fluid'},{id:'d',l:'Too much fluid'},{id:'e',l:'Wrong fluid type'},{id:'f',l:'Access not closed'},{id:'g',l:'System/equipment not deactivated/reactivated'},{id:'h',l:'Other'}]},
+  {id:'ac_ops',l:'4. Aircraft Operation',items:[{id:'a',l:'Driven into equipment/facility'},{id:'b',l:'Driven off ramp/taxiway'},{id:'c',l:'Other'}]},
+  {id:'handling',l:'5. Aircraft Handling',items:[{id:'a',l:'Pushed/towed into'},{id:'b',l:'Pushed/towed off of'},{id:'c',l:'Not pushed/towed'},{id:'d',l:'Not pushed/towed in required time'},{id:'e',l:'Marshalling'},{id:'f',l:'Other'}]},
+  {id:'mx',l:'6. Maintenance',items:[{id:'a',l:'Maintenance not performed'},{id:'b',l:'Maintenance not performed in required time'},{id:'c',l:'Equipment/parts not installed'},{id:'d',l:'Wrong equipment/parts installed'},{id:'e',l:'Incomplete installation'},{id:'f',l:'Access not closed'},{id:'g',l:'System/equipment not deactivated/reactivated'},{id:'h',l:'Other'}]},
+  {id:'fault',l:'7. Fault Isolation/Test/Inspection',items:[{id:'a',l:'Did not detect fault'},{id:'b',l:'Not found by fault isolation'},{id:'c',l:'Not found by operational/functional test'},{id:'d',l:'Not found by inspection'},{id:'e',l:'Access not closed'},{id:'f',l:'System/equipment not deactivated/reactivated'},{id:'g',l:'Other'}]},
+  {id:'pi_type',l:'8. Personal Injury Type',items:[{id:'a',l:'Slip/trip/fall'},{id:'b',l:'Caught in/on/between'},{id:'c',l:'Struck by/against'},{id:'d',l:'Hazard contacted (electricity, hot/cold/sharp surfaces)'},{id:'e',l:'Hazardous substance exposure (toxic/noxious)'},{id:'f',l:'Hazardous thermal environment exposure'},{id:'g',l:'Incorrect body position for manual handling'},{id:'h',l:'Other'}]},
+  {id:'wb',l:'9. Weight & Balance',items:[{id:'a',l:'Cargo exceeded weight limit'},{id:'b',l:'Cargo loaded in unbalanced manner'},{id:'c',l:'Cargo load/offload tracking error'},{id:'d',l:'Incorrect data entries'},{id:'e',l:'Delay in reporting error'},{id:'f',l:'Other'}]},
+  {id:'other',l:'10. Other',items:[]}
+];
+var REDA_CF = [
+  {id:'A',l:'A. Information',desc:'Written procedure, load plan, alerts, HAZMAT paperwork, live animal paperwork',items:['Not understandable','Unavailable/inaccessible','Incorrect','Too much/conflicting information','Insufficient information','Update process is too long/complicated','Incorrectly modified manufacturer\'s MM/SB','Information not used','Inefficient procedure','Uncontrolled','Other'],c:'#1A6FC4'},
+  {id:'B',l:'B. Ground Support Equipment/Tools/Safety Equipment',desc:'PPE and CPE',items:['Defective/unserviceable','Unsafe','Unreliable','Layout of controls or displays','Not used','Unavailable','Inappropriate for the task','Incorrectly used','Cannot use in intended environment','Incorrectly used in existing environment','Too complicated','Incorrectly labeled/marked','Not labeled/marked','PPE/CPE not used','PPE/CPE used incorrectly','PPE/CPE unavailable','Out of calibration','No instructions','Inaccessible','Past expiration date','Other'],c:'#E87722'},
+  {id:'C',l:'C. Aircraft Design/Configuration/Parts/Equipment/Consumables',desc:'',items:['Complex','Unavailable/inaccessible','Incorrect','Too much/conflicting information','Insufficient information','Update process is too long/complicated','Incorrectly modified manufacturer\'s MM/SB','Information not used','Inefficient procedure','Uncontrolled','Other'],c:'#00A693'},
+  {id:'D',l:'D. Job/Task',desc:'',items:['Repetitive/monotonous','Complex/confusing','New task or task change','Different from other similar tasks','Requires forceful exertions','Requires kneeling/bending/stooping','Requires twisting','Long duration','Awkward position','Other'],c:'#7B2D8B'},
+  {id:'E',l:'E. Knowledge/Skills',desc:'',items:['Technical skills','Task knowledge','Task planning','Airline process knowledge','Vendor process knowledge','Airport process knowledge','Aircraft system knowledge','Aircraft configuration knowledge','English language proficiency','Teamwork skills','Computing skills','Other'],c:'#0891B2'},
+  {id:'F',l:'F. Individual Factors',desc:'',items:['Physical health (including hearing and sight)','Fatigue','Time pressure','Peer pressure','Complacency','Body size/strength','Personal event (e.g., family problem)','Task distractions/interruptions','Memory lapse (forgot)','Visual perception','Lack of assertiveness','Stress','Situation awareness','Workload/task saturation','Other'],c:'#D4A843'},
+  {id:'G',l:'G. Environment/Facilities/Ramp',desc:'',items:['High noise levels','Hot','Cold','Humidity','Rain','Snow','Wind','Lightning','Vibrations','Cleanliness','Hazardous/toxic substances','Power sources','Inadequate ventilation','Inadequate blast protection','Markings','Lighting','Labels/placards/signage','Confined space','Other'],c:'#27AE60'},
+  {id:'H',l:'H. Organizational Factors',desc:'',items:['Quality of support from technical organizations','Quality of support from airport vendors','Quality of support from airport organizations','Company policies','Not enough staff','Corporate change/restructuring','Union action','Work process/procedure','Work process/procedure not followed','Work process/procedure not documented (tribal knowledge)','Work group normal practice (norm)','Failure to follow ground guidance','Failure to follow airport authority guidance','Team building','Other'],c:'#C0392B'},
+  {id:'I',l:'I. Leadership/Supervision',desc:'',items:['Planning/organization of tasks','Prioritization of work','Delegation/assignment of task','Unrealistic attitude/expectations','Does not assure approved process/procedure is followed','Amount of supervision','Other'],c:'#556B82'},
+  {id:'J',l:'J. Communication',desc:'',items:['Between departments','Between staff','Between shifts','Between ramp staff and lead','Between lead and management','Between flight crew and ramp staff','Between airline and vendor','Between vendors','Between airline and airport','Other'],c:'#8B5CF6'},
+  {id:'K',l:'K. Other Contributing Factors',desc:'',items:[],c:'#888'}
+];
+
+// ==================== DATA MODEL ====================
+function mkMedaCF(){var o={};MEDA_CF.forEach(function(c){o[c.id]={na:false,checked:{},describe:'',recommendations:''}});return o}
+function mkRedaCF(){var o={};REDA_CF.forEach(function(c){o[c.id]={na:false,checked:{},describe:'',recommendations:''}});return o}
+function mkMedaEvents(){var o={};MEDA_EVENTS.ops.forEach(function(e){o[e.id]=false});MEDA_EVENTS.other.forEach(function(e){o[e.id]=false});return o}
+function mkMedaSF(){var o={};MEDA_SYS_FAILURES.forEach(function(g){o[g.id]={};g.items.forEach(function(it){o[g.id][it.id]=false})});return o}
+function mkRedaEvents(){var o={};REDA_EVENTS.forEach(function(g){o[g.id]={};g.items.forEach(function(it){o[g.id][it.id]=false})});return o}
+function mkRedaSF(){var o={};REDA_SYS_FAILURES.forEach(function(g){o[g.id]={};g.items.forEach(function(it){o[g.id][it.id]=false})});return o}
+
+function NB(){return{id:'i_'+Date.now()+'_'+Math.random().toString(36).substr(2,5),ref:'',organisation:'',dateEvent:'',dateInvestigation:'',aircraft:'',eventDescription:'',findingSource:'internal_audit',classification:'level2',ncrOwner:'',team:'',regulatoryRef:'',
+fiveWhys:{ps:'',steps:[]},
+ishikawa:{effect:'',bones:{man:[],machine:[],method:[],material:[],environment:[],management:[]}},
+meda:{sec:1,
+  gen:{ref:'',interviewer:'',interviewerTel:'',airline:'',station:'',acType:'',engineType:'',regNo:'',fleetNo:'',ata:'',acZone:'',dateInv:'',dateEvent:'',timeEvent:'',timeAmPm:'am',shift:'',mxType:'',mxSubType:'',prevRef:'',dateChanges:''},
+  events:mkMedaEvents(),eventDesc:'',
+  sysFailures:mkMedaSF(),sfFly:'',sfDesc:'',
+  chronoSummary:'',
+  recommendations:'',
+  cf:mkMedaCF()
+},
+reda:{sec:1,
+  gen:{ref:'',interviewer:'',interviewerTel:'',airline:'',station:'',acTypeReg:'',equipType:'',equipTypeExtra:'',dateInv:'',dateEvent:'',timeEvent:'',timeAmPm:'am',shift:'',prevRef:'',dateChanges:''},
+  events:mkRedaEvents(),eventDesc:'',
+  sysFailures:mkRedaSF(),sfDesc:'',
+  cf:mkRedaCF(),
+  prevention:{policies:[],recommendations:[]},
+  chronoSummary:''
+},
+capaPlan:[],signOff:{inv:'',invD:'',qa:'',qaD:'',am:''},created:new Date().toISOString(),modified:new Date().toISOString()}}
+
+// ==================== STATE & STORAGE ====================
+var INV=[],CID=null,CTAB='info';
+function sv(){try{localStorage.setItem('at_rca',JSON.stringify(INV));var i=cur();if(i)i.modified=new Date().toISOString();document.getElementById('stR').textContent='Saved '+new Date().toLocaleTimeString()}catch(e){}}
+function ld(){try{var r=localStorage.getItem('at_rca');if(r)INV=JSON.parse(r);INV.forEach(function(i){migrateMeda(i);migrateReda(i)})}catch(e){INV=[]}}
+function migrateMeda(i){if(!i.meda||!i.meda.gen){var nb=NB();i.meda=nb.meda}}
+function migrateReda(i){if(!i.reda||!i.reda.gen){var nb=NB();i.reda=nb.reda}}
+function cur(){return INV.find(function(x){return x.id===CID})}
+function E(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function F(id,v){var i=cur();if(!i)return;var p=id.split('.'),o=i;for(var j=0;j<p.length-1;j++)o=o[p[j]];o[p[p.length-1]]=v;sv()}
+function sTab(t){CTAB=t;R()}
+function saveFile(){var i=cur();if(!i)return alert('No investigation.');var b=new Blob([JSON.stringify(i,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=(i.ref||i.id)+'_RCA.json';a.click();URL.revokeObjectURL(a.href)}
+function loadFile(){document.getElementById('fi').click()}
+function onLoad(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){try{var i=JSON.parse(ev.target.result);if(!i.id)i.id='i_'+Date.now();migrateMeda(i);migrateReda(i);var x=INV.findIndex(function(z){return z.id===i.id});if(x>=0){if(confirm('Replace "'+(i.ref||i.id)+'"?'))INV[x]=i;else return}else INV.push(i);CID=i.id;CTAB='info';sv();R()}catch(err){alert('Error: '+err.message)}};r.readAsText(f);e.target.value=''}
+function newInv(){var i=NB();i.ref='NCR-'+new Date().getFullYear()+'-'+String(INV.length+1).padStart(3,'0');INV.push(i);CID=i.id;CTAB='info';sv();R()}
+function selInv(id){CID=id;CTAB='info';R()}
+function delInv(id){if(!confirm('Delete?'))return;INV=INV.filter(function(x){return x.id!==id});if(CID===id)CID=INV.length?INV[0].id:null;sv();R()}
+function togTheme(){var c=document.documentElement.getAttribute('data-theme')||'dark',n=c==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('at_theme',n);updTh(n);R()}
+function updTh(t){var b=document.getElementById('thBtn');if(b)b.textContent=t==='dark'?'Light':'Dark'}
+function initTh(){var s=localStorage.getItem('at_theme')||'dark';document.documentElement.setAttribute('data-theme',s);updTh(s)}
+
+// ==================== RENDER ====================
+function R(){rSB();rTB();rWS()}
+function rSB(){var el=document.getElementById('sbl');if(!INV.length){el.innerHTML='<div style="padding:20px;text-align:center;color:var(--dim);font-size:13px">No investigations.</div>';return}el.innerHTML=INV.map(function(i){return'<div class="si'+(i.id===CID?' a':'')+'" onclick="selInv(\''+i.id+'\')"><b>'+E(i.ref||'Untitled')+'</b><small>'+E((i.eventDescription||'').substring(0,50))+'</small></div>'}).join('')}
+function rTB(){if(!CID){document.getElementById('tbar').innerHTML='';return}var ts=[{id:'info',ic:'Info'},{id:'whys',ic:'5 Whys'},{id:'ishi',ic:'Ishikawa'},{id:'meda',ic:'MEDA'},{id:'reda',ic:'REDA'},{id:'report',ic:'Report'}];document.getElementById('tbar').innerHTML=ts.map(function(t){return'<button class="tab'+(CTAB===t.id?' a':'')+'" onclick="sTab(\''+t.id+'\')">'+t.ic+'</button>'}).join('')}
+function rWS(){var w=document.getElementById('ws');if(!CID){w.innerHTML='<div class="em"><h2>Aviathrust RCA Toolbox</h2><p>Create or load an investigation.</p><button class="hb p" onclick="newInv()" style="font-size:16px;padding:10px 24px">+ New Investigation</button></div>';return}var i=cur();if(!i)return;if(CTAB==='info')w.innerHTML=rInfo(i);else if(CTAB==='whys')w.innerHTML=rWhys(i);else if(CTAB==='ishi')w.innerHTML=rIshi(i);else if(CTAB==='meda')w.innerHTML=rMeda(i);else if(CTAB==='reda')w.innerHTML=rReda(i);else if(CTAB==='report')w.innerHTML=rRpt(i)}
+
+// ==================== INFO TAB ====================
+function rInfo(i){return'<div class="cd"><h3>Investigation Details</h3><div class="fg"><div><label>Reference</label><input value="'+E(i.ref)+'" onchange="F(\'ref\',this.value);rSB()"></div><div><label>Organisation</label><input value="'+E(i.organisation)+'" onchange="F(\'organisation\',this.value)"></div><div><label>Date of Event</label><input type="date" value="'+i.dateEvent+'" onchange="F(\'dateEvent\',this.value)"></div><div><label>Date of Investigation</label><input type="date" value="'+i.dateInvestigation+'" onchange="F(\'dateInvestigation\',this.value)"></div><div><label>Aircraft</label><input value="'+E(i.aircraft)+'" onchange="F(\'aircraft\',this.value)"></div><div><label>NCR Owner</label><input value="'+E(i.ncrOwner)+'" onchange="F(\'ncrOwner\',this.value)"></div><div><label>Finding Source</label><select onchange="F(\'findingSource\',this.value)"><option value="authority_audit"'+(i.findingSource==='authority_audit'?' selected':'')+'>Authority Audit</option><option value="internal_audit"'+(i.findingSource==='internal_audit'?' selected':'')+'>Internal Audit</option><option value="mor"'+(i.findingSource==='mor'?' selected':'')+'>MOR</option><option value="voluntary"'+(i.findingSource==='voluntary'?' selected':'')+'>Voluntary Report</option><option value="sms_trend"'+(i.findingSource==='sms_trend'?' selected':'')+'>SMS Trend</option></select></div><div><label>Classification</label><select onchange="F(\'classification\',this.value)"><option value="level1"'+(i.classification==='level1'?' selected':'')+'>Level 1</option><option value="level2"'+(i.classification==='level2'?' selected':'')+'>Level 2</option><option value="observation"'+(i.classification==='observation'?' selected':'')+'>Observation</option></select></div><div class="f"><label>Regulatory Reference</label><input value="'+E(i.regulatoryRef)+'" onchange="F(\'regulatoryRef\',this.value)"></div><div class="f"><label>Event Description</label><textarea rows="4" onchange="F(\'eventDescription\',this.value);rSB()">'+E(i.eventDescription)+'</textarea></div><div class="f"><label>Investigation Team</label><textarea rows="2" onchange="F(\'team\',this.value)">'+E(i.team)+'</textarea></div></div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="hb p" onclick="sTab(\'whys\')">5 Whys</button><button class="hb" onclick="sTab(\'ishi\')">Ishikawa</button><button class="hb" style="background:var(--accent);color:#fff" onclick="sTab(\'meda\')">MEDA</button><button class="hb" style="background:var(--amber);color:#fff" onclick="sTab(\'reda\')">REDA</button><button class="hb" style="margin-left:auto;color:var(--red);border-color:var(--red)" onclick="delInv(\''+i.id+'\')">Delete</button></div>'}
+
+// ==================== 5 WHYS ====================
+function addW(){var i=cur();if(!i)return;i.fiveWhys.steps.push({q:'',a:'',ev:'',mI:false,mC:false,mP:false});sv();R()}
+function rmW(n){var i=cur();if(!i)return;i.fiveWhys.steps.splice(n,1);sv();R()}
+function wF(n,k,v){var i=cur();if(!i)return;i.fiveWhys.steps[n][k]=v;sv();if(k[0]==='m')R()}
+function rWhys(i){var w=i.fiveWhys;if(!w.ps&&i.eventDescription)w.ps=i.eventDescription;var h='<div class="cd"><h3>5 Whys Analysis</h3><div style="margin-bottom:14px"><label>Problem Statement</label><textarea rows="2" onchange="cur().fiveWhys.ps=this.value;sv()">'+E(w.ps)+'</textarea></div>';if(w.steps.length){h+='<div class="wc">';w.steps.forEach(function(s,n){var ok=s.mI&&s.mC&&s.mP;h+='<div class="wr'+(ok?' rt':'')+'"><div class="nm" style="background:'+(ok?'var(--green)':'var(--accent)')+'">'+(ok?'RC':(n+1))+'</div><div class="in"><div style="display:flex;justify-content:space-between"><strong style="color:'+(ok?'var(--green)':'var(--accent)')+'">'+(ok?'ROOT CAUSE':'WHY '+(n+1))+'</strong><button class="db" onclick="rmW('+n+')">x</button></div><div class="rf"><div><label>Why?</label><textarea rows="2" onchange="wF('+n+',\'q\',this.value)">'+E(s.q)+'</textarea></div><div><label>Answer + Evidence</label><textarea rows="2" onchange="wF('+n+',\'a\',this.value)">'+E(s.a)+'</textarea></div></div><div style="margin-top:6px"><label>Evidence Ref</label><input value="'+E(s.ev)+'" onchange="wF('+n+',\'ev\',this.value)"></div><div class="mb"><strong style="font-size:13px;color:var(--muted)">Management Control Test:</strong><br><label><input type="checkbox" '+(s.mI?'checked':'')+' onchange="wF('+n+',\'mI\',this.checked)"> Identifiable?</label><label><input type="checkbox" '+(s.mC?'checked':'')+' onchange="wF('+n+',\'mC\',this.checked)"> Controllable?</label><label><input type="checkbox" '+(s.mP?'checked':'')+' onchange="wF('+n+',\'mP\',this.checked)"> Preventable?</label>'+(ok?'<div class="mp">ROOT CAUSE confirmed</div>':'')+'</div></div></div>'});h+='</div>'}h+='<button class="hb p" onclick="addW()" style="margin-top:12px">+ Add Why</button></div>';return h}
+
+// ==================== ISHIKAWA ====================
+function addC(b){var el=document.getElementById('nc_'+b);if(!el||!el.value.trim())return;cur().ishikawa.bones[b].push({cause:el.value.trim(),evidence:'',prioritised:false,whyChain:[]});sv();R()}
+function rmC(b,n){cur().ishikawa.bones[b].splice(n,1);sv();R()}
+function tgP(b,n){cur().ishikawa.bones[b][n].prioritised=!cur().ishikawa.bones[b][n].prioritised;sv();R()}
+function cEv(b,n,v){cur().ishikawa.bones[b][n].evidence=v;sv()}
+function aIW(b,n){cur().ishikawa.bones[b][n].whyChain.push({q:'',a:''});sv();R()}
+function iWF(b,ci,si,k,v){cur().ishikawa.bones[b][ci].whyChain[si][k]=v;sv()}
+function isDk(){return document.documentElement.getAttribute('data-theme')!=='light'}
+function printReport(){var orig=document.documentElement.getAttribute('data-theme')||'dark';document.documentElement.setAttribute('data-theme','light');R();setTimeout(function(){window.print();document.documentElement.setAttribute('data-theme',orig);updTh(orig);R()},100)}
+function bFish(i){var is=i.ishikawa,W=1200,H=700,Y=H/2,X1=280,HX=W-160,HW=140,HH=80,X2=HX-20,bS=X1+70,bE=HX-130,bG=(bE-bS)/2;var dk=isDk();var spineC=dk?'#4A6A8A':'#3A5A7A';var dimTxt=dk?'#8A9BB5':'#3A5575';var priTxt=dk?'#FFFFFF':'#1A2B3D';var effStroke=dk?'#ffffff':'#8A2020';function bX(n){return bS+n*bG}var ks=Object.keys(BM),t=ks.slice(0,3),bo=ks.slice(3);var s='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg">';s+='<line x1="'+X1+'" y1="'+Y+'" x2="'+X2+'" y2="'+Y+'" stroke="'+spineC+'" stroke-width="4" stroke-linecap="round"/>';s+='<polygon points="'+X2+','+(Y-10)+' '+(X2+18)+','+Y+' '+X2+','+(Y+10)+'" fill="'+spineC+'"/>';s+='<line x1="'+X1+'" y1="'+Y+'" x2="'+(X1-30)+'" y2="'+(Y-25)+'" stroke="'+spineC+'" stroke-width="3"/>';s+='<line x1="'+X1+'" y1="'+Y+'" x2="'+(X1-30)+'" y2="'+(Y+25)+'" stroke="'+spineC+'" stroke-width="3"/>';s+='<rect x="'+HX+'" y="'+(Y-HH/2)+'" width="'+HW+'" height="'+HH+'" rx="8" fill="#C0392B" stroke="'+effStroke+'" stroke-width="2"/>';s+='<text x="'+(HX+HW/2)+'" y="'+(Y-8)+'" text-anchor="middle" fill="#fff" font-size="13" font-weight="bold">EFFECT</text>';s+='<text x="'+(HX+HW/2)+'" y="'+(Y+12)+'" text-anchor="middle" fill="#ffffffcc" font-size="10">'+E((is.effect||'').substring(0,30))+'</text>';function db(bid,idx,side){var m=BM[bid],cs=is.bones[bid]||[],x0=bX(idx),eY=side==='top'?Y-170:Y+170,aX=x0+60;var g='<line x1="'+aX+'" y1="'+Y+'" x2="'+x0+'" y2="'+eY+'" stroke="'+m.c+'" stroke-width="3" stroke-linecap="round"/>';var lW=110,lH=28,lX=x0-lW/2,lY=side==='top'?eY-lH-6:eY+6;g+='<rect x="'+lX+'" y="'+lY+'" width="'+lW+'" height="'+lH+'" rx="4" fill="'+m.c+'"/>';g+='<text x="'+x0+'" y="'+(lY+lH/2+5)+'" text-anchor="middle" fill="#fff" font-size="13" font-weight="bold">'+m.l+'</text>';cs.forEach(function(c,ci){var pr=0.22+ci*(0.6/Math.max(cs.length-1,1)),rAX=aX-(aX-x0)*pr,rAY=Y+(eY-Y)*pr,rL=110,rEX=rAX-rL,ip=c.prioritised;g+='<line x1="'+rAX+'" y1="'+rAY+'" x2="'+rEX+'" y2="'+rAY+'" stroke="'+m.c+'" stroke-width="'+(ip?2.5:1)+'" '+(ip?'':'stroke-dasharray="4,3"')+' opacity="'+(ip?1:0.5)+'"/>';g+='<circle cx="'+(rEX-3)+'" cy="'+rAY+'" r="'+(ip?5:3)+'" fill="'+(ip?'#D4A843':m.c)+'" opacity="'+(ip?1:0.5)+'"/>';var tx=c.cause.length>28?c.cause.substring(0,26)+'..':c.cause;g+='<text x="'+(rEX-10)+'" y="'+(rAY+4)+'" text-anchor="end" fill="'+(ip?priTxt:dimTxt)+'" font-size="'+(ip?11:10)+'" font-weight="'+(ip?'bold':'normal')+'">'+E(tx)+'</text>'});return g}t.forEach(function(id,n){s+=db(id,n,'top')});bo.forEach(function(id,n){s+=db(id,n,'bottom')});s+='</svg>';return s}
+function rIshi(i){var is=i.ishikawa;if(!is.effect&&i.eventDescription)is.effect=i.eventDescription;var h='<div class="cd"><h3>Ishikawa (Fishbone) Diagram</h3><div style="margin-bottom:12px"><label>Effect Statement</label><input value="'+E(is.effect)+'" onchange="cur().ishikawa.effect=this.value;sv();R()"></div></div><div class="isw">'+bFish(i)+'</div><div class="bp">';Object.keys(BM).forEach(function(b){var m=BM[b],cs=is.bones[b]||[];h+='<div class="bn" style="border-color:'+m.c+'"><h4 style="color:'+m.c+'">'+m.l+' ('+cs.length+')</h4><div style="font-size:11px;color:var(--dim);margin-bottom:6px">'+m.p+'</div>';cs.forEach(function(c,ci){h+='<div class="ci"><input type="checkbox" '+(c.prioritised?'checked':'')+' onchange="tgP(\''+b+'\','+ci+')"><div style="flex:1"><div class="ct'+(c.prioritised?' pr':'')+'">'+E(c.cause)+'</div><input style="margin-top:4px;font-size:12px;padding:3px 6px" value="'+E(c.evidence)+'" onchange="cEv(\''+b+'\','+ci+',this.value)" placeholder="Evidence">';if(c.prioritised){h+='<div class="iw"><h5 style="color:var(--amber)">5-Why Drill</h5>';c.whyChain.forEach(function(s,si){h+='<div class="is"><div class="in2" style="background:'+m.c+'">'+(si+1)+'</div><div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:6px"><input value="'+E(s.q)+'" onchange="iWF(\''+b+'\','+ci+','+si+',\'q\',this.value)" placeholder="Why?"><input value="'+E(s.a)+'" onchange="iWF(\''+b+'\','+ci+','+si+',\'a\',this.value)" placeholder="Answer"></div></div>'});h+='<button style="font-size:12px;padding:3px 10px;border:1px dashed var(--border);background:none;color:var(--muted);border-radius:4px;margin-top:4px;cursor:pointer" onclick="aIW(\''+b+'\','+ci+')">+ Why</button></div>'}h+='</div><button class="db" onclick="rmC(\''+b+'\','+ci+')">x</button></div>'});h+='<div class="ar"><input id="nc_'+b+'" placeholder="Add cause.." onkeydown="if(event.key===\'Enter\')addC(\''+b+'\')"><button style="background:'+m.c+';color:#fff" onclick="addC(\''+b+'\')">+</button></div></div>'});h+='</div>';return h}
+
+// ==================== MEDA FULL FORM ====================
+function mSet(path,v){var i=cur();if(!i)return;var p=path.split('.'),o=i.meda;for(var j=0;j<p.length-1;j++){if(!o[p[j]])o[p[j]]={};o=o[p[j]]}o[p[p.length-1]]=v;sv()}
+function rMeda(i){var m=i.meda,sec=m.sec||1;
+var SN=['I. General','II. Event','III. System Failure','IV. Chrono Summary','V. Contributing Factors','VI. Recommendations'];
+var h='<div class="bf-section"><h3 style="color:var(--accent)">MEDA \u2014 Maintenance Event Decision Aid</h3><p style="color:var(--muted);font-size:13px;margin-bottom:4px">Boeing MEDA Results Form \u2014 Revision N (10 February 2022)</p></div>';
+h+='<div class="bf-nav">';SN.forEach(function(s,n){var sn=n+1,ac=sn===sec,dn=sn<sec;h+='<div class="bf-nav-item'+(ac?' act':''+(dn?' done':''))+'" onclick="cur().meda.sec='+sn+';sv();R()" style="'+(ac?'background:var(--accent);color:#fff;':'')+(dn?'color:var(--green);':'')+'">'+s+'</div>'});h+='</div>';
+if(sec===1) h+=rMedaSec1(m);
+else if(sec===2) h+=rMedaSec2(m);
+else if(sec===3) h+=rMedaSec3(m);
+else if(sec===4) h+=rMedaSec4(m);
+else if(sec===5) h+=rMedaSec6(m);
+else if(sec===6) h+=rMedaSec5(m);
+h+=medaNav(sec);
+return h}
+
+function medaNav(sec){return'<div style="display:flex;justify-content:space-between;margin-top:16px" class="no-print"><button class="hb" '+(sec<=1?'disabled':'')+' onclick="cur().meda.sec='+(sec-1)+';sv();R()">\u2190 Previous</button><span style="color:var(--muted);font-size:14px;align-self:center">Section '+sec+' of 6</span><button class="hb p" '+(sec>=6?'disabled':'')+' onclick="cur().meda.sec='+(sec+1)+';sv();R()">Next \u2192</button></div>'}
+
+function rMedaSec1(m){var g=m.gen;return'<div class="bf-section"><h3>Section I \u2014 General Information</h3><div class="bf-grid"><div><label>Reference #</label><input value="'+E(g.ref)+'" onchange="mSet(\'gen.ref\',this.value)"></div><div><label>Interviewer\'s Name</label><input value="'+E(g.interviewer)+'" onchange="mSet(\'gen.interviewer\',this.value)"></div><div><label>Airline</label><input value="'+E(g.airline)+'" onchange="mSet(\'gen.airline\',this.value)"></div><div><label>Interviewer\'s Tel #</label><input value="'+E(g.interviewerTel)+'" onchange="mSet(\'gen.interviewerTel\',this.value)"></div><div><label>Station of Mx System Failure</label><input value="'+E(g.station)+'" onchange="mSet(\'gen.station\',this.value)"></div><div><label>Date of Investigation</label><input type="date" value="'+g.dateInv+'" onchange="mSet(\'gen.dateInv\',this.value)"></div><div><label>Aircraft Type</label><input value="'+E(g.acType)+'" onchange="mSet(\'gen.acType\',this.value)"></div><div><label>Date of Event</label><input type="date" value="'+g.dateEvent+'" onchange="mSet(\'gen.dateEvent\',this.value)"></div><div><label>Engine Type</label><input value="'+E(g.engineType)+'" onchange="mSet(\'gen.engineType\',this.value)"></div><div><label>Time of Event</label><div style="display:flex;gap:6px"><input value="'+E(g.timeEvent)+'" onchange="mSet(\'gen.timeEvent\',this.value)" placeholder="HH:MM" style="flex:1"><select style="width:80px" onchange="mSet(\'gen.timeAmPm\',this.value)"><option value="am"'+(g.timeAmPm==='am'?' selected':'')+'>AM</option><option value="pm"'+(g.timeAmPm==='pm'?' selected':'')+'>PM</option></select></div></div><div><label>Reg. #</label><input value="'+E(g.regNo)+'" onchange="mSet(\'gen.regNo\',this.value)"></div><div><label>Shift of Failure</label><input value="'+E(g.shift)+'" onchange="mSet(\'gen.shift\',this.value)"></div><div><label>Fleet Number</label><input value="'+E(g.fleetNo)+'" onchange="mSet(\'gen.fleetNo\',this.value)"></div><div><label>Type of Maintenance (Mx)</label><select onchange="mSet(\'gen.mxType\',this.value)"><option value="">-- Select --</option><option value="line"'+(g.mxType==='line'?' selected':'')+'>1. Line</option><option value="base"'+(g.mxType==='base'?' selected':'')+'>2. Base</option></select></div><div><label>ATA #</label><input value="'+E(g.ata)+'" onchange="mSet(\'gen.ata\',this.value)"></div><div><label>If Line/Base, what type?</label><input value="'+E(g.mxSubType)+'" onchange="mSet(\'gen.mxSubType\',this.value)"></div><div><label>Aircraft Zone</label><input value="'+E(g.acZone)+'" onchange="mSet(\'gen.acZone\',this.value)"></div><div></div><div><label>Ref. # of previous related event</label><input value="'+E(g.prevRef)+'" onchange="mSet(\'gen.prevRef\',this.value)"></div><div><label>Date Changes Implemented</label><input type="date" value="'+g.dateChanges+'" onchange="mSet(\'gen.dateChanges\',this.value)"></div></div></div>'}
+
+function rMedaSec2(m){var ev=m.events;
+var h='<div class="bf-section"><h3>Section II \u2014 Event</h3><p style="color:var(--muted);font-size:13px;margin-bottom:12px">Please select the event (check all that apply)</p>';
+h+='<div class="bf-sf-group"><h4>1. Operations Process Event</h4><div class="bf-grid">';
+MEDA_EVENTS.ops.forEach(function(e){h+='<label class="bf-cb'+(ev[e.id]?' sel':'')+'"><input type="checkbox" '+(ev[e.id]?'checked':'')+' onchange="cur().meda.events.'+e.id+'=this.checked;sv();R()"> '+e.l+'</label>'});
+h+='</div></div><div class="bf-grid" style="margin-bottom:12px">';
+MEDA_EVENTS.other.forEach(function(e){h+='<label class="bf-cb'+(ev[e.id]?' sel':'')+'"><input type="checkbox" '+(ev[e.id]?'checked':'')+' onchange="cur().meda.events.'+e.id+'=this.checked;sv();R()"> '+e.l+'</label>'});
+h+='</div><div><label>Describe the incident/degradation/failure that caused the event</label><textarea rows="4" onchange="mSet(\'eventDesc\',this.value)">'+E(m.eventDesc)+'</textarea></div></div>';
+return h}
+
+function rMedaSec3(m){var sf=m.sysFailures;
+var h='<div class="bf-section"><h3>Section III \u2014 Maintenance System Failure</h3><p style="color:var(--muted);font-size:13px;margin-bottom:12px">Please select the maintenance system failure(s) that caused the event</p>';
+MEDA_SYS_FAILURES.forEach(function(grp){
+  h+='<div class="bf-sf-group"><h4>'+grp.l+'</h4>';
+  if(grp.items.length){
+    h+='<div class="bf-grid3">';
+    grp.items.forEach(function(it){
+      var ck=sf[grp.id]&&sf[grp.id][it.id];
+      h+='<label class="bf-cb'+(ck?' sel':'')+'"><input type="checkbox" '+(ck?'checked':'')+' onchange="if(!cur().meda.sysFailures[\''+grp.id+'\'])cur().meda.sysFailures[\''+grp.id+'\']={};cur().meda.sysFailures[\''+grp.id+'\'][\''+it.id+'\']=this.checked;sv();R()"> '+it.id+'. '+it.l+'</label>'});
+    h+='</div>';
+  }
+  h+='</div>'});
+h+='<div style="margin:12px 0"><label style="font-size:15px;font-weight:normal;cursor:pointer">Did the Maintenance System Failure "fly" on the aircraft? &nbsp;<select style="width:100px" onchange="mSet(\'sfFly\',this.value)"><option value="">--</option><option value="yes"'+(m.sfFly==='yes'?' selected':'')+'>YES</option><option value="no"'+(m.sfFly==='no'?' selected':'')+'>NO</option></select></label></div>';
+h+='<div><label>Describe the specific maintenance failure</label><textarea rows="4" onchange="mSet(\'sfDesc\',this.value)">'+E(m.sfDesc)+'</textarea></div></div>';
+return h}
+
+function rMedaSec4(m){return'<div class="bf-section"><h3>Section IV \u2014 Chronological Summary of the Event</h3><p style="color:var(--muted);font-size:13px;margin-bottom:12px">Including how some Contributing Factors lead to additional Contributing Factors</p><textarea rows="12" style="min-height:200px" onchange="mSet(\'chronoSummary\',this.value)">'+E(m.chronoSummary)+'</textarea></div>'}
+
+function rMedaSec5(m){
+var h='<div class="bf-section"><h3>Section VI \u2014 Summary of Recommendations</h3>';
+h+='<button class="hb p" onclick="autoPopMedaRec()" style="margin-bottom:14px">\u21bb Collect all recommendations from Contributing Factors</button>';
+h+='<textarea rows="12" style="min-height:200px" onchange="mSet(\'recommendations\',this.value)">'+E(m.recommendations)+'</textarea></div>';
+return h}
+function autoPopMedaRec(){var i=cur();if(!i)return;var lines=[];MEDA_CF.forEach(function(cat){var d=i.meda.cf[cat.id];if(d&&!d.na&&d.recommendations&&d.recommendations.trim()){lines.push(cat.l+':\n'+d.recommendations.trim())}});if(!lines.length){alert('No recommendations found in Contributing Factors sections. Complete Section V first.');return}if(i.meda.recommendations&&i.meda.recommendations.trim()){if(!confirm('This will replace existing text. Continue?'))return}i.meda.recommendations=lines.join('\n\n');sv();R()}
+
+function rMedaSec6(m){var cf=m.cf;
+var h='<div class="bf-section"><h3>Section V \u2014 Contributing Factors Checklist</h3><p style="color:var(--muted);font-size:13px;margin-bottom:12px">Check all contributing factors that apply. Mark N/A if category does not apply.</p>';
+MEDA_CF.forEach(function(cat){
+  var d=cf[cat.id]||{na:false,checked:{},describe:'',recommendations:''};
+  h+='<div class="bf-cat" style="border-left-color:'+cat.c+'"><h4 style="color:'+cat.c+'">'+cat.l+'</h4>';
+  if(cat.desc)h+='<div class="bf-desc">'+cat.desc+'</div>';
+  h+='<label class="bf-cb" style="margin-bottom:8px;font-weight:bold"><input type="checkbox" '+(d.na?'checked':'')+' onchange="if(!cur().meda.cf[\''+cat.id+'\'])cur().meda.cf[\''+cat.id+'\']={na:false,checked:{},describe:\'\',recommendations:\'\'};cur().meda.cf[\''+cat.id+'\'].na=this.checked;sv();R()"> N/A</label>';
+  if(!d.na){
+    h+='<div class="bf-grid3" style="margin-bottom:10px">';
+    cat.items.forEach(function(it,idx){
+      var num=idx+1;
+      var ck=d.checked&&d.checked[num];
+      h+='<label class="bf-cb'+(ck?' sel':'')+'"><input type="checkbox" '+(ck?'checked':'')+' onchange="if(!cur().meda.cf[\''+cat.id+'\'].checked)cur().meda.cf[\''+cat.id+'\'].checked={};cur().meda.cf[\''+cat.id+'\'].checked['+num+']=this.checked;sv();R()"> '+num+'. '+it+'</label>'});
+    h+='</div>';
+    h+='<div style="margin-bottom:8px"><label>Describe specifically how the selected factor(s) contributed to the system failure</label><textarea rows="3" onchange="cur().meda.cf[\''+cat.id+'\'].describe=this.value;sv()">'+E(d.describe)+'</textarea></div>';
+    h+='<div><label>Recommendations to correct the Contributing Factors listed above</label><textarea rows="3" onchange="cur().meda.cf[\''+cat.id+'\'].recommendations=this.value;sv()">'+E(d.recommendations)+'</textarea></div>';
+  }
+  h+='</div>'});
+h+='</div>';return h}
+
+// ==================== REDA FULL FORM ====================
+function rSet(path,v){var i=cur();if(!i)return;var p=path.split('.'),o=i.reda;for(var j=0;j<p.length-1;j++){if(!o[p[j]])o[p[j]]={};o=o[p[j]]}o[p[p.length-1]]=v;sv()}
+function rReda(i){var r=i.reda,sec=r.sec||1;
+var SN=['I. General','II. Event','III. System Failure','IV. Contributing Factors','V. Prevention','VI. Chrono Summary'];
+var h='<div class="bf-section"><h3 style="color:var(--amber)">REDA \u2014 Ramp Event Decision Aid</h3><p style="color:var(--muted);font-size:13px;margin-bottom:4px">Boeing REDA Results Form \u2014 Revision J (4 March 2022)</p></div>';
+h+='<div class="bf-nav">';SN.forEach(function(s,n){var sn=n+1,ac=sn===sec,dn=sn<sec;h+='<div class="bf-nav-item'+(ac?' act':''+(dn?' done':''))+'" onclick="cur().reda.sec='+sn+';sv();R()" style="'+(ac?'background:var(--amber);color:#fff;':'')+(dn?'color:var(--green);':'')+'">'+s+'</div>'});h+='</div>';
+if(sec===1) h+=rRedaSec1(r);
+else if(sec===2) h+=rRedaSec2(r);
+else if(sec===3) h+=rRedaSec3(r);
+else if(sec===4) h+=rRedaSec4(r);
+else if(sec===5) h+=rRedaSec5(r);
+else if(sec===6) h+=rRedaSec6(r);
+h+='<div style="display:flex;justify-content:space-between;margin-top:16px" class="no-print"><button class="hb" '+(sec<=1?'disabled':'')+' onclick="cur().reda.sec='+(sec-1)+';sv();R()">\u2190 Previous</button><span style="color:var(--muted);font-size:14px;align-self:center">Section '+sec+' of 6</span><button class="hb" style="background:var(--amber);border-color:var(--amber);color:#fff" '+(sec>=6?'disabled':'')+' onclick="cur().reda.sec='+(sec+1)+';sv();R()">Next \u2192</button></div>';
+return h}
+
+function rRedaSec1(r){var g=r.gen;return'<div class="bf-section"><h3>Section I \u2014 General Information</h3><div class="bf-grid"><div><label>Reference #</label><input value="'+E(g.ref)+'" onchange="rSet(\'gen.ref\',this.value)"></div><div><label>Interviewer\'s Name</label><input value="'+E(g.interviewer)+'" onchange="rSet(\'gen.interviewer\',this.value)"></div><div><label>Airline</label><input value="'+E(g.airline)+'" onchange="rSet(\'gen.airline\',this.value)"></div><div><label>Interviewer\'s Tel #</label><input value="'+E(g.interviewerTel)+'" onchange="rSet(\'gen.interviewerTel\',this.value)"></div><div><label>Station of Error</label><input value="'+E(g.station)+'" onchange="rSet(\'gen.station\',this.value)"></div><div><label>Date of Investigation</label><input type="date" value="'+g.dateInv+'" onchange="rSet(\'gen.dateInv\',this.value)"></div><div><label>Aircraft Type/Reg. #</label><input value="'+E(g.acTypeReg)+'" onchange="rSet(\'gen.acTypeReg\',this.value)"></div><div><label>Date of Event</label><input type="date" value="'+g.dateEvent+'" onchange="rSet(\'gen.dateEvent\',this.value)"></div><div><label>Equipment Type</label><input value="'+E(g.equipType)+'" onchange="rSet(\'gen.equipType\',this.value)"></div><div><label>Time of Event</label><div style="display:flex;gap:6px"><input value="'+E(g.timeEvent)+'" onchange="rSet(\'gen.timeEvent\',this.value)" placeholder="HH:MM" style="flex:1"><select style="width:80px" onchange="rSet(\'gen.timeAmPm\',this.value)"><option value="am"'+(g.timeAmPm==='am'?' selected':'')+'>AM</option><option value="pm"'+(g.timeAmPm==='pm'?' selected':'')+'>PM</option></select></div></div><div><label>Equipment Type (continued)</label><input value="'+E(g.equipTypeExtra)+'" onchange="rSet(\'gen.equipTypeExtra\',this.value)"></div><div><label>Shift of Event</label><input value="'+E(g.shift)+'" onchange="rSet(\'gen.shift\',this.value)"></div><div><label>Ref. # of previous related event</label><input value="'+E(g.prevRef)+'" onchange="rSet(\'gen.prevRef\',this.value)"></div><div><label>Date Changes Implemented</label><input type="date" value="'+g.dateChanges+'" onchange="rSet(\'gen.dateChanges\',this.value)"></div></div></div>'}
+
+function rRedaSec2(r){var ev=r.events;
+var h='<div class="bf-section"><h3>Section II \u2014 Event</h3><p style="color:var(--muted);font-size:13px;margin-bottom:12px">Please select the event (check all that apply)</p>';
+REDA_EVENTS.forEach(function(grp){
+  h+='<div class="bf-sf-group"><h4>'+grp.l+'</h4>';
+  if(grp.items.length){
+    h+='<div class="bf-grid3">';
+    grp.items.forEach(function(it){
+      var ck=ev[grp.id]&&ev[grp.id][it.id];
+      h+='<label class="bf-cb'+(ck?' sel':'')+'"><input type="checkbox" '+(ck?'checked':'')+' onchange="if(!cur().reda.events[\''+grp.id+'\'])cur().reda.events[\''+grp.id+'\']={};cur().reda.events[\''+grp.id+'\'][\''+it.id+'\']=this.checked;sv();R()"> '+it.id+'. '+it.l+'</label>'});
+    h+='</div>';
+  }
+  h+='</div>'});
+h+='<div><label>Describe the event</label><textarea rows="4" onchange="rSet(\'eventDesc\',this.value)">'+E(r.eventDesc)+'</textarea></div></div>';
+return h}
+
+function rRedaSec3(r){var sf=r.sysFailures;
+var h='<div class="bf-section"><h3>Section III \u2014 Ramp System Failure</h3><p style="color:var(--muted);font-size:13px;margin-bottom:12px">Please select the system failure (check all that apply)</p>';
+REDA_SYS_FAILURES.forEach(function(grp){
+  h+='<div class="bf-sf-group"><h4>'+grp.l+'</h4>';
+  if(grp.items.length){
+    h+='<div class="bf-grid3">';
+    grp.items.forEach(function(it){
+      var ck=sf[grp.id]&&sf[grp.id][it.id];
+      h+='<label class="bf-cb'+(ck?' sel':'')+'"><input type="checkbox" '+(ck?'checked':'')+' onchange="if(!cur().reda.sysFailures[\''+grp.id+'\'])cur().reda.sysFailures[\''+grp.id+'\']={};cur().reda.sysFailures[\''+grp.id+'\'][\''+it.id+'\']=this.checked;sv();R()"> '+it.id+'. '+it.l+'</label>'});
+    h+='</div>';
+  }
+  h+='</div>'});
+h+='<div><label>Describe the specific ramp system failure</label><textarea rows="4" onchange="rSet(\'sfDesc\',this.value)">'+E(r.sfDesc)+'</textarea></div></div>';
+return h}
+
+function rRedaSec4(r){var cf=r.cf;
+var h='<div class="bf-section"><h3>Section IV \u2014 Contributing Factors Checklist</h3><p style="color:var(--muted);font-size:13px;margin-bottom:12px">Check all contributing factors that apply. Mark N/A if category does not apply.</p>';
+REDA_CF.forEach(function(cat){
+  var d=cf[cat.id]||{na:false,checked:{},describe:'',recommendations:''};
+  h+='<div class="bf-cat" style="border-left-color:'+cat.c+'"><h4 style="color:'+cat.c+'">'+cat.l+'</h4>';
+  if(cat.desc)h+='<div class="bf-desc">'+cat.desc+'</div>';
+  h+='<label class="bf-cb" style="margin-bottom:8px;font-weight:bold"><input type="checkbox" '+(d.na?'checked':'')+' onchange="if(!cur().reda.cf[\''+cat.id+'\'])cur().reda.cf[\''+cat.id+'\']={na:false,checked:{},describe:\'\',recommendations:\'\'};cur().reda.cf[\''+cat.id+'\'].na=this.checked;sv();R()"> N/A</label>';
+  if(!d.na){
+    if(cat.items.length){
+      h+='<div class="bf-grid3" style="margin-bottom:10px">';
+      cat.items.forEach(function(it,idx){
+        var num=idx+1;
+        var ck=d.checked&&d.checked[num];
+        h+='<label class="bf-cb'+(ck?' sel':'')+'"><input type="checkbox" '+(ck?'checked':'')+' onchange="if(!cur().reda.cf[\''+cat.id+'\'].checked)cur().reda.cf[\''+cat.id+'\'].checked={};cur().reda.cf[\''+cat.id+'\'].checked['+num+']=this.checked;sv();R()"> '+num+'. '+it+'</label>'});
+      h+='</div>';
+    }
+    h+='<div style="margin-bottom:8px"><label>Describe specifically how the selected factor(s) contributed to the failure</label><textarea rows="3" onchange="cur().reda.cf[\''+cat.id+'\'].describe=this.value;sv()">'+E(d.describe)+'</textarea></div>';
+    if(cat.id!=='K'){h+='<div><label>Recommendations to correct the Contributing Factors listed above</label><textarea rows="3" onchange="cur().reda.cf[\''+cat.id+'\'].recommendations=this.value;sv()">'+E(d.recommendations)+'</textarea></div>';}
+  }
+  h+='</div>'});
+h+='</div>';return h}
+
+function rRedaSec5(r){
+var pr=r.prevention||{policies:[],recommendations:[]};
+if(!pr.policies)pr.policies=[];if(!pr.recommendations)pr.recommendations=[];
+var polOpts=['Ramp Operation Policies or Processes (e.g., Ground Operations Manual)','Maintenance Policies or Procedures','Inspection, Functional Check or Safety Check','Required Maintenance Documentation','Required Ramp Operation Documentation','Supporting Documentation','Training materials','All operator letters','Inter-company bulletins','Other'];
+var h='<div class="bf-section"><h3>Section V \u2014 Failure Prevention Strategies</h3>';
+h+='<h4>A. What current existing procedures, processes, and/or policies are intended to prevent the incident, but didn\'t?</h4>';
+polOpts.forEach(function(p,idx){
+  var ck=pr.policies.indexOf(idx)>=0;
+  h+='<label class="bf-cb'+(ck?' sel':'')+'"><input type="checkbox" '+(ck?'checked':'')+' onchange="var pr=cur().reda.prevention;if(!pr.policies)pr.policies=[];var idx=pr.policies.indexOf('+idx+');if(this.checked&&idx<0)pr.policies.push('+idx+');else if(!this.checked&&idx>=0)pr.policies.splice(idx,1);sv();R()"> '+p+'</label>'});
+h+='<h4 style="margin-top:16px">B. List recommendations for system failure prevention strategies</h4>';
+h+='<button class="hb" style="background:var(--amber);border-color:var(--amber);color:#fff;margin-bottom:12px" onclick="autoPopRedaRec()">\u21bb Collect recommendations from Contributing Factors</button>';
+if(!pr.recommendations.length)pr.recommendations=[{cfRef:'',rec:''}];
+pr.recommendations.forEach(function(rec,n){
+  h+='<div style="display:grid;grid-template-columns:120px 1fr 40px;gap:8px;margin-bottom:6px;align-items:start"><input value="'+E(rec.cfRef)+'" onchange="cur().reda.prevention.recommendations['+n+'].cfRef=this.value;sv()" placeholder="CF Ref #"><input value="'+E(rec.rec)+'" onchange="cur().reda.prevention.recommendations['+n+'].rec=this.value;sv()" placeholder="Recommendation"><button class="db" onclick="cur().reda.prevention.recommendations.splice('+n+',1);sv();R()">x</button></div>'});
+h+='<button class="hb" onclick="if(!cur().reda.prevention.recommendations)cur().reda.prevention.recommendations=[];cur().reda.prevention.recommendations.push({cfRef:\'\',rec:\'\'});sv();R()">+ Add Recommendation</button>';
+h+='</div>';return h}
+
+function rRedaSec6(r){return'<div class="bf-section"><h3>Section VI \u2014 Chronological Summary of the Event</h3><p style="color:var(--muted);font-size:13px;margin-bottom:12px">Summarize the event, including how some Contributing Factors lead to additional Contributing Factors</p><textarea rows="12" style="min-height:200px" onchange="rSet(\'chronoSummary\',this.value)">'+E(r.chronoSummary)+'</textarea></div>'}
+function autoPopRedaRec(){var i=cur();if(!i)return;var recs=[];REDA_CF.forEach(function(cat){var d=i.reda.cf[cat.id];if(d&&!d.na&&d.recommendations&&d.recommendations.trim()){recs.push({cfRef:cat.id,rec:d.recommendations.trim()})}});if(!recs.length){alert('No recommendations found in Contributing Factors sections. Complete Section IV first.');return}if(!i.reda.prevention)i.reda.prevention={policies:[],recommendations:[]};if(i.reda.prevention.recommendations&&i.reda.prevention.recommendations.length>1){if(!confirm('This will replace existing recommendations. Continue?'))return}i.reda.prevention.recommendations=recs;sv();R()}
+
+// ==================== REPORT ====================
+function addCA(){cur().capaPlan.push({rc:'',desc:'',owner:'',target:'',pri:'HIGH',eff:''});sv();R()}
+function caF(n,k,v){cur().capaPlan[n][k]=v;sv()}
+
+function countChecked(cfObj,cfDef){var total=0;cfDef.forEach(function(cat){var d=cfObj[cat.id];if(d&&!d.na&&d.checked){Object.keys(d.checked).forEach(function(k){if(d.checked[k])total++})}});return total}
+
+function rRpt(i){
+var h5=i.fiveWhys.steps.length>0,hI=Object.values(i.ishikawa.bones).some(function(b){return b.length>0}),hC=hI&&Object.values(i.ishikawa.bones).some(function(b){return b.some(function(c){return c.prioritised&&c.whyChain.length>0})}),hM=countChecked(i.meda.cf,MEDA_CF)>0||i.meda.sfDesc,hR=countChecked(i.reda.cf,REDA_CF)>0||i.reda.sfDesc;
+var ms=[];if(hC)ms.push('Combined Ishikawa+5Whys');else{if(h5)ms.push('5 Whys');if(hI)ms.push('Ishikawa')}if(hM)ms.push('MEDA');if(hR)ms.push('REDA');var mt=ms.length?ms.join(' + '):'Not selected';
+var rcs=[];i.fiveWhys.steps.forEach(function(s,n){if(s.mI&&s.mC&&s.mP)rcs.push({src:'5 Whys #'+(n+1),st:s.a,ev:s.ev})});Object.keys(i.ishikawa.bones).forEach(function(b){i.ishikawa.bones[b].forEach(function(c){if(c.prioritised&&c.whyChain.length){var la=c.whyChain[c.whyChain.length-1];if(la.a)rcs.push({src:BM[b].l,st:la.a,ev:c.evidence})}})});
+var h='<div class="cd"><h3>Report</h3><div style="display:flex;gap:8px;margin-bottom:16px"><button class="hb go" onclick="saveFile()">Save (.json)</button><button class="hb g" onclick="printReport()">Print / PDF</button><button class="hb p" onclick="generateDocx()" style="background:#2B579A;border-color:#2B579A">Export Word (.docx)</button></div></div>';
+// 1. HEADER
+h+='<div class="cd"><h3>1. Header</h3><table style="width:100%;font-size:14px;border-collapse:collapse">';[['Reference',i.ref],['Organisation',i.organisation],['Event Date',i.dateEvent],['Investigation Date',i.dateInvestigation],['Aircraft',i.aircraft],['Classification',i.classification.toUpperCase()],['Source',i.findingSource.replace(/_/g,' ')],['Owner',i.ncrOwner],['Reg. Ref',i.regulatoryRef],['Team',i.team],['Method',mt]].forEach(function(r){h+='<tr><td style="padding:6px 10px;border-bottom:1px solid var(--border);color:var(--muted);width:180px;font-weight:600">'+r[0]+'</td><td style="padding:6px 10px;border-bottom:1px solid var(--border)">'+E(r[1])+'</td></tr>'});h+='</table></div>';
+// 2. EVENT
+h+='<div class="cd"><h3>2. Event Description</h3><p style="font-size:15px;line-height:1.6">'+E(i.eventDescription)+'</p></div>';
+// 3. ISHIKAWA
+if(hI){h+='<div class="cd"><h3>3. Ishikawa</h3><div class="isw">'+bFish(i)+'</div><table style="width:100%;font-size:14px;border-collapse:collapse"><tr style="background:var(--mct-bg)"><th style="padding:6px 10px;text-align:left;border-bottom:2px solid var(--border)">Category</th><th style="padding:6px 10px;text-align:left;border-bottom:2px solid var(--border)">Cause</th><th style="padding:6px 10px;text-align:left;border-bottom:2px solid var(--border)">Evidence</th><th style="padding:6px 10px;text-align:left;border-bottom:2px solid var(--border)">Pri</th></tr>';Object.keys(BM).forEach(function(b){i.ishikawa.bones[b].forEach(function(c){h+='<tr><td style="padding:5px 10px;border-bottom:1px solid var(--border);color:'+BM[b].c+';font-weight:bold">'+BM[b].l+'</td><td style="padding:5px 10px;border-bottom:1px solid var(--border)">'+E(c.cause)+'</td><td style="padding:5px 10px;border-bottom:1px solid var(--border);color:var(--muted)">'+E(c.evidence)+'</td><td style="padding:5px 10px;border-bottom:1px solid var(--border)">'+(c.prioritised?'YES':'')+'</td></tr>'})});h+='</table></div>'}
+// 4. 5 WHYS
+if(h5){h+='<div class="cd"><h3>'+(hI?'4':'3')+'. 5 Whys</h3><p style="margin-bottom:10px;font-size:14px;color:var(--muted)"><strong>Problem:</strong> '+E(i.fiveWhys.ps)+'</p>';i.fiveWhys.steps.forEach(function(s,n){var ok=s.mI&&s.mC&&s.mP;h+='<div style="padding:8px 12px;margin-bottom:6px;border-left:3px solid '+(ok?'var(--green)':'var(--accent)')+';background:var(--mct-bg);border-radius:4px"><strong style="color:'+(ok?'var(--green)':'var(--accent)')+'">'+(ok?'ROOT CAUSE':'WHY '+(n+1))+'</strong><br><span style="color:var(--muted);font-size:13px">'+E(s.q)+'</span><br>'+E(s.a)+(s.ev?'<br><span style="font-size:12px;color:var(--dim)">Ev: '+E(s.ev)+'</span>':'')+(ok?'<br><span style="color:var(--green);font-size:13px;font-weight:bold">MCT: Pass</span>':'')+'</div>'});h+='</div>'}
+// MEDA summary
+if(hM){h+=rMedaReport(i.meda)}
+// REDA summary
+if(hR){h+=rRedaReport(i.reda)}
+// ROOT CAUSES
+h+='<div class="cd"><h3>Root Cause Statements</h3>';if(rcs.length){rcs.forEach(function(rc,n){h+='<div style="border-left:4px solid var(--green);padding:10px 14px;margin-bottom:8px;background:var(--mct-bg);border-radius:6px"><strong style="color:var(--green)">RC-'+String.fromCharCode(65+n)+' ('+rc.src+')</strong><br>'+E(rc.st)+(rc.ev?'<br><span style="font-size:12px;color:var(--dim)">Ev: '+E(rc.ev)+'</span>':'')+'</div>'})}else h+='<p style="color:var(--dim)">No root causes confirmed yet.</p>';h+='</div>';
+// CAPA
+h+='<div class="cd"><h3>CAPA Plan</h3><div style="font-size:12px;color:var(--muted);margin-bottom:8px;display:grid;grid-template-columns:0.8fr 2fr 1fr 0.8fr 0.8fr 1.5fr;gap:8px"><span>RC Ref</span><span>CAPA</span><span>Owner</span><span>Priority</span><span>Target</span><span>Effectiveness</span></div>';i.capaPlan.forEach(function(c,n){h+='<div class="cr"><input value="'+E(c.rc)+'" onchange="caF('+n+',\'rc\',this.value)" placeholder="RC-A"><textarea onchange="caF('+n+',\'desc\',this.value)">'+E(c.desc)+'</textarea><input value="'+E(c.owner)+'" onchange="caF('+n+',\'owner\',this.value)"><select onchange="caF('+n+',\'pri\',this.value)"><option value="CRITICAL"'+(c.pri==='CRITICAL'?' selected':'')+'>CRITICAL</option><option value="HIGH"'+(c.pri==='HIGH'?' selected':'')+'>HIGH</option><option value="MEDIUM"'+(c.pri==='MEDIUM'?' selected':'')+'>MEDIUM</option></select><input type="date" value="'+c.target+'" onchange="caF('+n+',\'target\',this.value)"><input value="'+E(c.eff)+'" onchange="caF('+n+',\'eff\',this.value)" placeholder="How verify?"></div>'});h+='<button class="hb" onclick="addCA()">+ Add CAPA</button></div>';
+// SIGN-OFF
+h+='<div class="cd"><h3>Sign-Off</h3><div class="fg"><div><label>Investigator</label><input value="'+E(i.signOff.inv)+'" onchange="F(\'signOff.inv\',this.value)"></div><div><label>Date</label><input type="date" value="'+i.signOff.invD+'" onchange="F(\'signOff.invD\',this.value)"></div><div><label>QA Reviewer</label><input value="'+E(i.signOff.qa)+'" onchange="F(\'signOff.qa\',this.value)"></div><div><label>Date</label><input type="date" value="'+i.signOff.qaD+'" onchange="F(\'signOff.qaD\',this.value)"></div><div><label>AM Notified</label><input type="date" value="'+i.signOff.am+'" onchange="F(\'signOff.am\',this.value)"></div></div></div>';return h}
+
+function rMedaReport(m){
+var h='<div class="cd"><h3>MEDA Investigation Summary</h3>';
+h+='<table style="width:100%;font-size:14px;border-collapse:collapse">';
+if(m.gen.ref)h+='<tr><td style="padding:5px 10px;border-bottom:1px solid var(--border);color:var(--muted);width:200px;font-weight:600">MEDA Ref</td><td style="padding:5px 10px;border-bottom:1px solid var(--border)">'+E(m.gen.ref)+'</td></tr>';
+if(m.gen.airline)h+='<tr><td style="padding:5px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-weight:600">Airline</td><td style="padding:5px 10px;border-bottom:1px solid var(--border)">'+E(m.gen.airline)+'</td></tr>';
+if(m.gen.acType)h+='<tr><td style="padding:5px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-weight:600">Aircraft</td><td style="padding:5px 10px;border-bottom:1px solid var(--border)">'+E(m.gen.acType)+' '+E(m.gen.regNo)+'</td></tr>';
+if(m.sfFly)h+='<tr><td style="padding:5px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-weight:600">Flew on aircraft?</td><td style="padding:5px 10px;border-bottom:1px solid var(--border)">'+m.sfFly.toUpperCase()+'</td></tr>';
+h+='</table>';
+// Events checked
+var evList=[];
+MEDA_EVENTS.ops.forEach(function(e){if(m.events[e.id])evList.push(e.l)});
+MEDA_EVENTS.other.forEach(function(e){if(m.events[e.id])evList.push(e.l)});
+if(evList.length)h+='<h4 style="margin:10px 0 6px">Events</h4><p style="font-size:14px">'+evList.join(', ')+'</p>';
+if(m.eventDesc)h+='<p style="font-size:14px;margin-top:6px;color:var(--muted)">'+E(m.eventDesc)+'</p>';
+// System failures
+var sfList=[];
+MEDA_SYS_FAILURES.forEach(function(grp){if(m.sysFailures[grp.id]){grp.items.forEach(function(it){if(m.sysFailures[grp.id][it.id])sfList.push(grp.l.split('.')[0]+'. '+it.l)})}});
+if(sfList.length){h+='<h4 style="margin:10px 0 6px">System Failures ('+sfList.length+')</h4>';sfList.forEach(function(s){h+='<div style="padding:3px 0;font-size:14px;border-bottom:1px solid var(--border)">\u2022 '+E(s)+'</div>'})}
+if(m.sfDesc)h+='<p style="font-size:14px;margin-top:6px;color:var(--muted)"><strong>Description:</strong> '+E(m.sfDesc)+'</p>';
+// Contributing factors = RCA
+var cfList=[];
+MEDA_CF.forEach(function(cat){var d=m.cf[cat.id];if(d&&!d.na&&d.checked){var items=[];Object.keys(d.checked).forEach(function(k){if(d.checked[k]&&cat.items[k-1])items.push(cat.items[k-1])});if(items.length)cfList.push({cat:cat.l,items:items,desc:d.describe,rec:d.recommendations})}});
+if(cfList.length){h+='<h4 style="margin:14px 0 6px;font-size:16px;color:var(--accent);border-bottom:2px solid var(--accent);padding-bottom:4px">Root Cause Analysis \u2014 Contributing Factors</h4>';cfList.forEach(function(cf){h+='<div style="margin-bottom:8px;padding:8px 12px;border-left:3px solid var(--accent);background:var(--mct-bg);border-radius:4px"><strong>'+E(cf.cat)+'</strong><br><span style="font-size:13px">'+cf.items.join(', ')+'</span>'+(cf.desc?'<br><span style="font-size:12px;color:var(--dim)">'+E(cf.desc)+'</span>':'')+'</div>'})}
+// Recommendations = CAPA
+var hasRecs=cfList.some(function(cf){return cf.rec&&cf.rec.trim()});
+if(hasRecs||m.recommendations){h+='<h4 style="margin:14px 0 6px;font-size:16px;color:var(--green);border-bottom:2px solid var(--green);padding-bottom:4px">CAPA \u2014 Corrective & Preventive Actions</h4>';if(hasRecs){cfList.forEach(function(cf){if(cf.rec&&cf.rec.trim())h+='<div style="margin-bottom:6px;padding:6px 12px;border-left:3px solid var(--green);background:var(--mct-bg);border-radius:4px"><strong style="font-size:12px;color:var(--muted)">'+E(cf.cat)+'</strong><br><span style="font-size:13px">'+E(cf.rec)+'</span></div>'})}if(m.recommendations){h+='<div style="margin-top:8px;padding:10px 14px;border:1px solid var(--green);border-radius:6px;background:var(--mct-bg)"><strong style="color:var(--green)">Consolidated Recommendations</strong><p style="font-size:14px;white-space:pre-wrap;margin-top:4px">'+E(m.recommendations)+'</p></div>'}}
+if(m.chronoSummary)h+='<h4 style="margin:10px 0 6px">Chronological Summary</h4><p style="font-size:14px;white-space:pre-wrap">'+E(m.chronoSummary)+'</p>';
+h+='</div>';return h}
+
+function rRedaReport(r){
+var h='<div class="cd"><h3>REDA Investigation Summary</h3>';
+h+='<table style="width:100%;font-size:14px;border-collapse:collapse">';
+if(r.gen.ref)h+='<tr><td style="padding:5px 10px;border-bottom:1px solid var(--border);color:var(--muted);width:200px;font-weight:600">REDA Ref</td><td style="padding:5px 10px;border-bottom:1px solid var(--border)">'+E(r.gen.ref)+'</td></tr>';
+if(r.gen.airline)h+='<tr><td style="padding:5px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-weight:600">Airline</td><td style="padding:5px 10px;border-bottom:1px solid var(--border)">'+E(r.gen.airline)+'</td></tr>';
+if(r.gen.acTypeReg)h+='<tr><td style="padding:5px 10px;border-bottom:1px solid var(--border);color:var(--muted);font-weight:600">Aircraft/Reg</td><td style="padding:5px 10px;border-bottom:1px solid var(--border)">'+E(r.gen.acTypeReg)+'</td></tr>';
+h+='</table>';
+// Events
+var evList=[];
+REDA_EVENTS.forEach(function(grp){if(r.events[grp.id]){grp.items.forEach(function(it){if(r.events[grp.id][it.id])evList.push(grp.l.split('.')[0]+'. '+it.l)})}});
+if(evList.length)h+='<h4 style="margin:10px 0 6px">Events</h4><p style="font-size:14px">'+evList.join(', ')+'</p>';
+if(r.eventDesc)h+='<p style="font-size:14px;margin-top:6px;color:var(--muted)">'+E(r.eventDesc)+'</p>';
+// System failures
+var sfList=[];
+REDA_SYS_FAILURES.forEach(function(grp){if(r.sysFailures[grp.id]){grp.items.forEach(function(it){if(r.sysFailures[grp.id][it.id])sfList.push(grp.l.split('.')[0]+'. '+it.l)})}});
+if(sfList.length){h+='<h4 style="margin:10px 0 6px">Ramp System Failures ('+sfList.length+')</h4>';sfList.forEach(function(s){h+='<div style="padding:3px 0;font-size:14px;border-bottom:1px solid var(--border)">\u2022 '+E(s)+'</div>'})}
+if(r.sfDesc)h+='<p style="font-size:14px;margin-top:6px;color:var(--muted)"><strong>Description:</strong> '+E(r.sfDesc)+'</p>';
+// Contributing factors = RCA
+var cfList=[];
+REDA_CF.forEach(function(cat){var d=r.cf[cat.id];if(d&&!d.na&&d.checked){var items=[];Object.keys(d.checked).forEach(function(k){if(d.checked[k]&&cat.items[k-1])items.push(cat.items[k-1])});if(items.length)cfList.push({cat:cat.l,items:items,desc:d.describe,rec:d.recommendations})}});
+if(cfList.length){h+='<h4 style="margin:14px 0 6px;font-size:16px;color:var(--amber);border-bottom:2px solid var(--amber);padding-bottom:4px">Root Cause Analysis \u2014 Contributing Factors</h4>';cfList.forEach(function(cf){h+='<div style="margin-bottom:8px;padding:8px 12px;border-left:3px solid var(--amber);background:var(--mct-bg);border-radius:4px"><strong>'+E(cf.cat)+'</strong><br><span style="font-size:13px">'+cf.items.join(', ')+'</span>'+(cf.desc?'<br><span style="font-size:12px;color:var(--dim)">'+E(cf.desc)+'</span>':'')+'</div>'})}
+// Recommendations = CAPA
+var hasRecs=cfList.some(function(cf){return cf.rec&&cf.rec.trim()});
+var hasPrev=r.prevention&&r.prevention.recommendations&&r.prevention.recommendations.some(function(p){return p.rec&&p.rec.trim()});
+if(hasRecs||hasPrev){h+='<h4 style="margin:14px 0 6px;font-size:16px;color:var(--green);border-bottom:2px solid var(--green);padding-bottom:4px">CAPA \u2014 Corrective & Preventive Actions</h4>';if(hasRecs){cfList.forEach(function(cf){if(cf.rec&&cf.rec.trim())h+='<div style="margin-bottom:6px;padding:6px 12px;border-left:3px solid var(--green);background:var(--mct-bg);border-radius:4px"><strong style="font-size:12px;color:var(--muted)">'+E(cf.cat)+'</strong><br><span style="font-size:13px">'+E(cf.rec)+'</span></div>'})}if(hasPrev){h+='<div style="margin-top:8px;padding:10px 14px;border:1px solid var(--green);border-radius:6px;background:var(--mct-bg)"><strong style="color:var(--green)">Prevention Strategies</strong>';r.prevention.recommendations.forEach(function(p){if(p.rec&&p.rec.trim())h+='<div style="padding:4px 0;font-size:14px;border-bottom:1px solid var(--border)">'+(p.cfRef?'<strong style="font-size:12px;color:var(--muted)">['+E(p.cfRef)+']</strong> ':'')+E(p.rec)+'</div>'});h+='</div>'}}
+if(r.chronoSummary)h+='<h4 style="margin:10px 0 6px">Chronological Summary</h4><p style="font-size:14px;white-space:pre-wrap">'+E(r.chronoSummary)+'</p>';
+h+='</div>';return h}
+
+// ==================== WORD EXPORT ENGINE ====================
+function generateDocx(){
+var i=cur();if(!i)return alert('No investigation.');
+if(typeof docx==='undefined')return alert('docx library not loaded. Check internet connection.');
+var D=docx;
+var ACC='#1A6FC4',GRN='#27AE60',AMB='#E87722',RED='#C0392B',GLD='#D4A843',HDR='#1B3055',LBL='#4A6078',BG1='#EDF2F8',BG2='#F7F9FB';
+var FONT='Calibri',TITLE='Century Gothic';
+var bdr={style:D.BorderStyle.SINGLE,size:1,color:'CCCCCC'};
+var borders={top:bdr,bottom:bdr,left:bdr,right:bdr};
+var cm={top:60,bottom:60,left:100,right:100};
+var TW=9360,C1=2800,C2=6560;
+
+// Helpers
+function hd(txt,lvl){return new D.Paragraph({heading:lvl||D.HeadingLevel.HEADING_1,spacing:{before:300,after:120},children:[new D.TextRun({text:txt,font:TITLE,bold:true})]})}
+function hd2(txt){return hd(txt,D.HeadingLevel.HEADING_2)}
+function hd3(txt){return hd(txt,D.HeadingLevel.HEADING_3)}
+function para(txt,opts){var o=opts||{};return new D.Paragraph({spacing:{after:80},children:[new D.TextRun({text:txt||'',font:FONT,size:o.size||22,bold:o.bold,italics:o.italics,color:o.color})]})}
+function spacer(){return new D.Paragraph({spacing:{after:40},children:[]})}
+function hr(){return new D.Paragraph({spacing:{before:120,after:120},border:{bottom:{style:D.BorderStyle.SINGLE,size:6,color:ACC.replace('#',''),space:1}},children:[]})}
+function kv(key,val){return new D.TableRow({children:[
+  new D.TableCell({borders:borders,width:{size:C1,type:D.WidthType.DXA},margins:cm,shading:{fill:BG1.replace('#',''),type:D.ShadingType.CLEAR},children:[new D.Paragraph({children:[new D.TextRun({text:key,font:FONT,size:20,bold:true,color:LBL.replace('#','')})]})]}),
+  new D.TableCell({borders:borders,width:{size:C2,type:D.WidthType.DXA},margins:cm,children:[new D.Paragraph({children:[new D.TextRun({text:val||'',font:FONT,size:22})]})]})]})
+}
+function kvTable(rows){return new D.Table({width:{size:TW,type:D.WidthType.DXA},columnWidths:[C1,C2],rows:rows.map(function(r){return kv(r[0],r[1])})})}
+function cb(checked,label){return new D.Paragraph({spacing:{after:40},children:[new D.TextRun({text:(checked?'\u2611':'\u2610')+' '+label,font:FONT,size:20})]})}
+function cbInline(checked,label){return new D.TextRun({text:(checked?'\u2611':'\u2610')+' '+label+'   ',font:FONT,size:20})}
+function sectionTitle(txt,color){return new D.Paragraph({spacing:{before:200,after:80},border:{bottom:{style:D.BorderStyle.SINGLE,size:4,color:(color||ACC).replace('#',''),space:1}},children:[new D.TextRun({text:txt,font:TITLE,size:28,bold:true,color:(color||ACC).replace('#','')})]})
+}
+
+var children=[];
+
+// ========== COVER / TITLE ==========
+children.push(new D.Paragraph({spacing:{before:1200,after:0},alignment:D.AlignmentType.CENTER,children:[new D.TextRun({text:'AVIATHRUST',font:TITLE,size:20,bold:true,color:LBL.replace('#',''),characterSpacing:300})]}));
+children.push(new D.Paragraph({spacing:{before:200,after:40},alignment:D.AlignmentType.CENTER,children:[new D.TextRun({text:'Root Cause Analysis',font:TITLE,size:52,bold:true,color:HDR.replace('#','')})]}));
+children.push(new D.Paragraph({spacing:{before:0,after:200},alignment:D.AlignmentType.CENTER,children:[new D.TextRun({text:'Investigation Report',font:TITLE,size:40,color:ACC.replace('#','')})]}));
+children.push(new D.Paragraph({spacing:{before:100,after:0},alignment:D.AlignmentType.CENTER,border:{top:{style:D.BorderStyle.SINGLE,size:2,color:ACC.replace('#',''),space:8},bottom:{style:D.BorderStyle.SINGLE,size:2,color:ACC.replace('#',''),space:8}},children:[new D.TextRun({text:i.ref||'Untitled Investigation',font:TITLE,size:36,bold:true})]}));
+children.push(spacer());
+children.push(kvTable([['Organisation',i.organisation],['Aircraft',i.aircraft],['Date of Event',i.dateEvent],['Date of Investigation',i.dateInvestigation],['Classification',i.classification.toUpperCase()],['Finding Source',i.findingSource.replace(/_/g,' ')],['NCR Owner',i.ncrOwner],['Regulatory Reference',i.regulatoryRef],['Investigation Team',i.team]]));
+children.push(new D.Paragraph({children:[new D.PageBreak()]}));
+
+// ========== EVENT DESCRIPTION ==========
+children.push(hd('1. Event Description'));
+children.push(para(i.eventDescription||'No description provided.'));
+children.push(spacer());
+
+// ========== ISHIKAWA ==========
+var hasIshi=Object.values(i.ishikawa.bones).some(function(b){return b.length>0});
+if(hasIshi){
+  children.push(hd('2. Ishikawa Analysis'));
+  if(i.ishikawa.effect)children.push(para('Effect: '+i.ishikawa.effect,{bold:true,color:RED.replace('#','')}));
+  var ishiRows=[new D.TableRow({children:[
+    new D.TableCell({borders:borders,width:{size:1800,type:D.WidthType.DXA},margins:cm,shading:{fill:HDR.replace('#',''),type:D.ShadingType.CLEAR},children:[para('Category',{bold:true,color:'FFFFFF',size:20})]}),
+    new D.TableCell({borders:borders,width:{size:3600,type:D.WidthType.DXA},margins:cm,shading:{fill:HDR.replace('#',''),type:D.ShadingType.CLEAR},children:[para('Cause',{bold:true,color:'FFFFFF',size:20})]}),
+    new D.TableCell({borders:borders,width:{size:2760,type:D.WidthType.DXA},margins:cm,shading:{fill:HDR.replace('#',''),type:D.ShadingType.CLEAR},children:[para('Evidence',{bold:true,color:'FFFFFF',size:20})]}),
+    new D.TableCell({borders:borders,width:{size:1200,type:D.WidthType.DXA},margins:cm,shading:{fill:HDR.replace('#',''),type:D.ShadingType.CLEAR},children:[para('Prioritised',{bold:true,color:'FFFFFF',size:20})]})]})];
+  Object.keys(BM).forEach(function(b){(i.ishikawa.bones[b]||[]).forEach(function(c){
+    ishiRows.push(new D.TableRow({children:[
+      new D.TableCell({borders:borders,width:{size:1800,type:D.WidthType.DXA},margins:cm,children:[para(BM[b].l,{bold:true,color:BM[b].c.replace('#',''),size:20})]}),
+      new D.TableCell({borders:borders,width:{size:3600,type:D.WidthType.DXA},margins:cm,children:[para(c.cause,{size:20})]}),
+      new D.TableCell({borders:borders,width:{size:2760,type:D.WidthType.DXA},margins:cm,children:[para(c.evidence||'',{size:20,color:LBL.replace('#','')})]}),
+      new D.TableCell({borders:borders,width:{size:1200,type:D.WidthType.DXA},margins:cm,shading:c.prioritised?{fill:'FFF8E1',type:D.ShadingType.CLEAR}:undefined,children:[para(c.prioritised?'YES':'',{bold:c.prioritised,size:20,color:c.prioritised?GLD.replace('#',''):undefined})]})]}))})});
+  children.push(new D.Table({width:{size:TW,type:D.WidthType.DXA},columnWidths:[1800,3600,2760,1200],rows:ishiRows}));
+  // Inline 5-Why drills from prioritised causes
+  Object.keys(BM).forEach(function(b){(i.ishikawa.bones[b]||[]).forEach(function(c){if(c.prioritised&&c.whyChain.length){children.push(hd3('5-Why Drill: '+c.cause));c.whyChain.forEach(function(s,si){children.push(para('Why '+(si+1)+': '+(s.q||''),{size:20,color:LBL.replace('#','')}));children.push(para('Answer: '+(s.a||''),{size:20}))})}})});
+  children.push(spacer());
+}
+
+// ========== 5 WHYS ==========
+var hasWhys=i.fiveWhys.steps.length>0;
+if(hasWhys){
+  children.push(hd((hasIshi?'3':'2')+'. 5 Whys Analysis'));
+  if(i.fiveWhys.ps)children.push(para('Problem Statement: '+i.fiveWhys.ps,{bold:true}));
+  i.fiveWhys.steps.forEach(function(s,n){var ok=s.mI&&s.mC&&s.mP;
+    children.push(new D.Paragraph({spacing:{before:80,after:40},indent:{left:360},border:{left:{style:D.BorderStyle.SINGLE,size:6,color:(ok?GRN:ACC).replace('#',''),space:4}},children:[
+      new D.TextRun({text:ok?'ROOT CAUSE':'WHY '+(n+1),font:FONT,size:22,bold:true,color:(ok?GRN:ACC).replace('#','')}),
+      new D.TextRun({text:'\n'+(s.q||''),font:FONT,size:20,color:LBL.replace('#',''),break:1}),
+      new D.TextRun({text:'\n'+(s.a||''),font:FONT,size:22,break:1}),
+      s.ev?new D.TextRun({text:'\nEvidence: '+s.ev,font:FONT,size:18,italics:true,color:LBL.replace('#',''),break:1}):new D.TextRun(''),
+      ok?new D.TextRun({text:'\nMCT: Identifiable + Controllable + Preventable = CONFIRMED',font:FONT,size:18,bold:true,color:GRN.replace('#',''),break:1}):new D.TextRun('')
+    ]}));
+  });
+  children.push(spacer());
+}
+
+// ========== MEDA ==========
+var hM=countChecked(i.meda.cf,MEDA_CF)>0||i.meda.sfDesc;
+if(hM){
+  children.push(new D.Paragraph({children:[new D.PageBreak()]}));
+  children.push(hd('MEDA Investigation'));
+  children.push(para('Maintenance Event Decision Aid \u2014 Rev N (10 February 2022)',{italics:true,color:LBL.replace('#','')}));
+  // Section I
+  children.push(sectionTitle('Section I \u2014 General Information'));
+  var mg=i.meda.gen;
+  children.push(kvTable([['Reference',mg.ref],['Interviewer',mg.interviewer],['Airline',mg.airline],['Station',mg.station],['Aircraft Type',mg.acType],['Engine Type',mg.engineType],['Reg. #',mg.regNo],['Fleet #',mg.fleetNo],['ATA #',mg.ata],['Aircraft Zone',mg.acZone],['Date of Event',mg.dateEvent],['Time of Event',(mg.timeEvent||'')+' '+(mg.timeAmPm||'').toUpperCase()],['Shift of Failure',mg.shift],['Type of Maintenance',mg.mxType?mg.mxType.toUpperCase()+' \u2014 '+(mg.mxSubType||''):''],['Previous Related Ref',mg.prevRef],['Date Changes Implemented',mg.dateChanges]]));
+  // Section II
+  children.push(sectionTitle('Section II \u2014 Event'));
+  var ev=i.meda.events;
+  children.push(hd3('Operations Process Events'));
+  MEDA_EVENTS.ops.forEach(function(e){children.push(cb(ev[e.id],e.l))});
+  children.push(hd3('Other Events'));
+  MEDA_EVENTS.other.forEach(function(e){children.push(cb(ev[e.id],e.l))});
+  if(i.meda.eventDesc){children.push(para('Description:',{bold:true,size:20}));children.push(para(i.meda.eventDesc))}
+  // Section III
+  children.push(sectionTitle('Section III \u2014 Maintenance System Failure'));
+  MEDA_SYS_FAILURES.forEach(function(grp){
+    if(!grp.items.length)return;
+    var sf=i.meda.sysFailures[grp.id]||{};
+    var any=grp.items.some(function(it){return sf[it.id]});
+    if(!any)return;
+    children.push(hd3(grp.l));
+    grp.items.forEach(function(it){if(sf[it.id])children.push(cb(true,it.id+'. '+it.l))})
+  });
+  if(i.meda.sfFly)children.push(para('Did the failure "fly" on the aircraft? '+i.meda.sfFly.toUpperCase(),{bold:true}));
+  if(i.meda.sfDesc){children.push(para('Description:',{bold:true,size:20}));children.push(para(i.meda.sfDesc))}
+  // Section IV
+  if(i.meda.chronoSummary){children.push(sectionTitle('Section IV \u2014 Chronological Summary'));children.push(para(i.meda.chronoSummary))}
+  // Section V — CF = RCA
+  children.push(sectionTitle('Section V \u2014 Contributing Factors (Root Cause Analysis)',ACC));
+  MEDA_CF.forEach(function(cat){
+    var d=i.meda.cf[cat.id];if(!d||d.na)return;
+    var items=[];if(d.checked){Object.keys(d.checked).forEach(function(k){if(d.checked[k]&&cat.items[k-1])items.push(cat.items[k-1])})}
+    if(!items.length)return;
+    children.push(new D.Paragraph({spacing:{before:120,after:40},border:{left:{style:D.BorderStyle.SINGLE,size:6,color:cat.c.replace('#',''),space:4}},children:[new D.TextRun({text:cat.l,font:TITLE,size:24,bold:true,color:cat.c.replace('#','')})]}));
+    items.forEach(function(it,idx){children.push(cb(true,(idx+1)+'. '+it))});
+    if(d.describe)children.push(para(d.describe,{italics:true,color:LBL.replace('#','')}));
+  });
+  // Section VI — Recommendations = CAPA
+  var hasAnyRec=false;MEDA_CF.forEach(function(cat){var d=i.meda.cf[cat.id];if(d&&!d.na&&d.recommendations&&d.recommendations.trim())hasAnyRec=true});
+  if(hasAnyRec||i.meda.recommendations){
+    children.push(sectionTitle('Section VI \u2014 Recommendations (CAPA)',GRN));
+    MEDA_CF.forEach(function(cat){
+      var d=i.meda.cf[cat.id];if(!d||d.na||!d.recommendations||!d.recommendations.trim())return;
+      children.push(new D.Paragraph({spacing:{before:80,after:40},border:{left:{style:D.BorderStyle.SINGLE,size:4,color:GRN.replace('#',''),space:4}},children:[
+        new D.TextRun({text:cat.l,font:FONT,size:20,bold:true,color:LBL.replace('#','')}),
+        new D.TextRun({text:'\n'+d.recommendations,font:FONT,size:22,break:1})
+      ]}));
+    });
+    if(i.meda.recommendations){children.push(hd3('Consolidated Recommendations'));children.push(para(i.meda.recommendations))}
+  }
+}
+
+// ========== REDA ==========
+var hR=countChecked(i.reda.cf,REDA_CF)>0||i.reda.sfDesc;
+if(hR){
+  children.push(new D.Paragraph({children:[new D.PageBreak()]}));
+  children.push(hd('REDA Investigation'));
+  children.push(para('Ramp Event Decision Aid \u2014 Rev J (4 March 2022)',{italics:true,color:LBL.replace('#','')}));
+  // Section I
+  children.push(sectionTitle('Section I \u2014 General Information',AMB));
+  var rg=i.reda.gen;
+  children.push(kvTable([['Reference',rg.ref],['Interviewer',rg.interviewer],['Airline',rg.airline],['Station of Error',rg.station],['Aircraft Type/Reg',rg.acTypeReg],['Equipment Type',rg.equipType],['Date of Event',rg.dateEvent],['Time of Event',(rg.timeEvent||'')+' '+(rg.timeAmPm||'').toUpperCase()],['Shift',rg.shift],['Previous Related Ref',rg.prevRef],['Date Changes Implemented',rg.dateChanges]]));
+  // Section II
+  children.push(sectionTitle('Section II \u2014 Event',AMB));
+  REDA_EVENTS.forEach(function(grp){
+    var ev=i.reda.events[grp.id]||{};
+    var any=grp.items.some(function(it){return ev[it.id]});
+    if(!any)return;
+    children.push(hd3(grp.l));
+    grp.items.forEach(function(it){if(ev[it.id])children.push(cb(true,it.id+'. '+it.l))})
+  });
+  if(i.reda.eventDesc){children.push(para('Description:',{bold:true,size:20}));children.push(para(i.reda.eventDesc))}
+  // Section III
+  children.push(sectionTitle('Section III \u2014 Ramp System Failure',AMB));
+  REDA_SYS_FAILURES.forEach(function(grp){
+    if(!grp.items.length)return;
+    var sf=i.reda.sysFailures[grp.id]||{};
+    var any=grp.items.some(function(it){return sf[it.id]});
+    if(!any)return;
+    children.push(hd3(grp.l));
+    grp.items.forEach(function(it){if(sf[it.id])children.push(cb(true,it.id+'. '+it.l))})
+  });
+  if(i.reda.sfDesc){children.push(para('Description:',{bold:true,size:20}));children.push(para(i.reda.sfDesc))}
+  // Section IV — CF = RCA
+  children.push(sectionTitle('Section IV \u2014 Contributing Factors (Root Cause Analysis)',AMB));
+  REDA_CF.forEach(function(cat){
+    var d=i.reda.cf[cat.id];if(!d||d.na)return;
+    var items=[];if(d.checked){Object.keys(d.checked).forEach(function(k){if(d.checked[k]&&cat.items[k-1])items.push(cat.items[k-1])})}
+    if(!items.length)return;
+    children.push(new D.Paragraph({spacing:{before:120,after:40},border:{left:{style:D.BorderStyle.SINGLE,size:6,color:cat.c.replace('#',''),space:4}},children:[new D.TextRun({text:cat.l,font:TITLE,size:24,bold:true,color:cat.c.replace('#','')})]}));
+    items.forEach(function(it,idx){children.push(cb(true,(idx+1)+'. '+it))});
+    if(d.describe)children.push(para(d.describe,{italics:true,color:LBL.replace('#','')}));
+  });
+  // Section V — CAPA
+  var hasRedaRec=false;REDA_CF.forEach(function(cat){var d=i.reda.cf[cat.id];if(d&&!d.na&&d.recommendations&&d.recommendations.trim())hasRedaRec=true});
+  var hasPrev=i.reda.prevention&&i.reda.prevention.recommendations&&i.reda.prevention.recommendations.some(function(p){return p.rec&&p.rec.trim()});
+  if(hasRedaRec||hasPrev){
+    children.push(sectionTitle('Section V \u2014 Prevention Strategies (CAPA)',GRN));
+    REDA_CF.forEach(function(cat){
+      var d=i.reda.cf[cat.id];if(!d||d.na||!d.recommendations||!d.recommendations.trim())return;
+      children.push(new D.Paragraph({spacing:{before:80,after:40},border:{left:{style:D.BorderStyle.SINGLE,size:4,color:GRN.replace('#',''),space:4}},children:[
+        new D.TextRun({text:cat.l,font:FONT,size:20,bold:true,color:LBL.replace('#','')}),
+        new D.TextRun({text:'\n'+d.recommendations,font:FONT,size:22,break:1})
+      ]}));
+    });
+    if(hasPrev){children.push(hd3('Consolidated Prevention Strategies'));i.reda.prevention.recommendations.forEach(function(p){if(p.rec&&p.rec.trim())children.push(para((p.cfRef?'['+p.cfRef+'] ':'')+p.rec))})}
+  }
+  // Section VI
+  if(i.reda.chronoSummary){children.push(sectionTitle('Section VI \u2014 Chronological Summary',AMB));children.push(para(i.reda.chronoSummary))}
+}
+
+// ========== ROOT CAUSE STATEMENTS ==========
+var rcs=[];
+i.fiveWhys.steps.forEach(function(s,n){if(s.mI&&s.mC&&s.mP)rcs.push({src:'5 Whys #'+(n+1),st:s.a,ev:s.ev})});
+Object.keys(i.ishikawa.bones).forEach(function(b){i.ishikawa.bones[b].forEach(function(c){if(c.prioritised&&c.whyChain.length){var la=c.whyChain[c.whyChain.length-1];if(la.a)rcs.push({src:BM[b].l,st:la.a,ev:c.evidence})}})});
+if(rcs.length){
+  children.push(new D.Paragraph({children:[new D.PageBreak()]}));
+  children.push(hd('Root Cause Statements'));
+  rcs.forEach(function(rc,n){
+    children.push(new D.Paragraph({spacing:{before:100,after:60},indent:{left:360},border:{left:{style:D.BorderStyle.SINGLE,size:8,color:GRN.replace('#',''),space:6}},shading:{fill:'F0FFF4',type:D.ShadingType.CLEAR},children:[
+      new D.TextRun({text:'RC-'+String.fromCharCode(65+n)+' ('+rc.src+')',font:TITLE,size:24,bold:true,color:GRN.replace('#','')}),
+      new D.TextRun({text:'\n'+rc.st,font:FONT,size:22,break:1}),
+      rc.ev?new D.TextRun({text:'\nEvidence: '+rc.ev,font:FONT,size:18,italics:true,color:LBL.replace('#',''),break:1}):new D.TextRun('')
+    ]}));
+  });
+}
+
+// ========== CAPA PLAN ==========
+if(i.capaPlan.length){
+  children.push(hr());
+  children.push(hd('CAPA Plan'));
+  var capaHdr=new D.TableRow({children:['RC Ref','Description','Owner','Priority','Target','Effectiveness Verification'].map(function(h,ci){
+    var ws=[800,3200,1400,1000,1000,1960];
+    return new D.TableCell({borders:borders,width:{size:ws[ci],type:D.WidthType.DXA},margins:cm,shading:{fill:GRN.replace('#',''),type:D.ShadingType.CLEAR},children:[para(h,{bold:true,color:'FFFFFF',size:18})]})})});
+  var capaRows=[capaHdr];
+  i.capaPlan.forEach(function(c,n){
+    var ws=[800,3200,1400,1000,1000,1960];
+    var vals=[c.rc,c.desc,c.owner,c.pri,c.target,c.eff];
+    capaRows.push(new D.TableRow({children:vals.map(function(v,ci){
+      return new D.TableCell({borders:borders,width:{size:ws[ci],type:D.WidthType.DXA},margins:cm,shading:n%2?{fill:BG2.replace('#',''),type:D.ShadingType.CLEAR}:undefined,children:[para(v||'',{size:20})]})})}))
+  });
+  children.push(new D.Table({width:{size:TW,type:D.WidthType.DXA},columnWidths:[800,3200,1400,1000,1000,1960],rows:capaRows}));
+}
+
+// ========== SIGN-OFF ==========
+children.push(hr());
+children.push(hd('Sign-Off'));
+children.push(kvTable([
+  ['Investigator',i.signOff.inv||''],
+  ['Investigator Date',i.signOff.invD||''],
+  ['QA Reviewer',i.signOff.qa||''],
+  ['QA Reviewer Date',i.signOff.qaD||''],
+  ['Accountable Manager Notified',i.signOff.am||'']
+]));
+children.push(spacer());
+children.push(para('This document was generated by Aviathrust RCA Toolbox on '+new Date().toLocaleDateString()+' at '+new Date().toLocaleTimeString()+'.',{size:18,italics:true,color:LBL.replace('#','')}));
+
+// ========== BUILD DOCUMENT ==========
+var doc=new D.Document({
+  styles:{
+    default:{document:{run:{font:FONT,size:22}}},
+    paragraphStyles:[
+      {id:'Heading1',name:'Heading 1',basedOn:'Normal',next:'Normal',quickFormat:true,run:{size:32,bold:true,font:TITLE,color:HDR.replace('#','')},paragraph:{spacing:{before:300,after:160}}},
+      {id:'Heading2',name:'Heading 2',basedOn:'Normal',next:'Normal',quickFormat:true,run:{size:28,bold:true,font:TITLE,color:ACC.replace('#','')},paragraph:{spacing:{before:240,after:120}}},
+      {id:'Heading3',name:'Heading 3',basedOn:'Normal',next:'Normal',quickFormat:true,run:{size:24,bold:true,font:TITLE,color:LBL.replace('#','')},paragraph:{spacing:{before:160,after:80}}}
+    ]
+  },
+  sections:[{
+    properties:{
+      page:{
+        size:{width:11906,height:16838},
+        margin:{top:1134,right:1134,bottom:1134,left:1134}
+      }
+    },
+    headers:{
+      default:new D.Header({children:[new D.Paragraph({alignment:D.AlignmentType.RIGHT,children:[
+        new D.TextRun({text:'AVIATHRUST RCA \u2014 ',font:TITLE,size:16,bold:true,color:LBL.replace('#','')}),
+        new D.TextRun({text:i.ref||'',font:TITLE,size:16,bold:true,color:ACC.replace('#','')})
+      ]})]})
+    },
+    footers:{
+      default:new D.Footer({children:[new D.Paragraph({alignment:D.AlignmentType.CENTER,border:{top:{style:D.BorderStyle.SINGLE,size:1,color:'CCCCCC',space:4}},children:[
+        new D.TextRun({text:'Confidential \u2014 ',font:FONT,size:16,color:LBL.replace('#','')}),
+        new D.TextRun({text:'Page ',font:FONT,size:16,color:LBL.replace('#','')}),
+        new D.TextRun({children:[D.PageNumber.CURRENT],font:FONT,size:16,color:LBL.replace('#','')}),
+        new D.TextRun({text:' of ',font:FONT,size:16,color:LBL.replace('#','')}),
+        new D.TextRun({children:[D.PageNumber.TOTAL_PAGES],font:FONT,size:16,color:LBL.replace('#','')})
+      ]})]})
+    },
+    children:children
+  }]
+});
+
+D.Packer.toBlob(doc).then(function(blob){
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=(i.ref||i.id)+'_RCA_Report.docx';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}).catch(function(err){alert('Word generation error: '+err.message);console.error(err)});
+}
+
+// ==================== DISCLAIMER ====================
+function checkDisclaimer(){
+  if(localStorage.getItem('at_disclaimer_accepted')==='true'){showApp();return}
+  document.getElementById('disclaimerOverlay').style.display='flex';
+}
+function acceptDisclaimer(){
+  localStorage.setItem('at_disclaimer_accepted','true');
+  document.getElementById('disclaimerOverlay').style.display='none';
+  showApp();
+}
+function declineDisclaimer(){
+  document.getElementById('disclaimerOverlay').style.display='none';
+  document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0B1623;color:#C0392B;font-family:Century Gothic,Segoe UI,sans-serif;text-align:center;padding:40px"><div><h1 style="font-size:28px;margin-bottom:12px">Access Denied</h1><p style="color:#8A9BB5;font-size:16px;margin-bottom:24px">You have declined the terms of use.<br>This tool cannot be used without accepting the disclaimer.</p><p style="color:#4A6078;font-size:13px">This tab will close automatically. If it does not, please close it manually.</p></div></div>';
+  setTimeout(function(){try{window.close()}catch(e){}},3000);
+}
+function showApp(){
+  var aw=document.getElementById('appWrap');aw.style.display='flex';aw.style.flexDirection='column';aw.style.flex='1';
+  initTh();ld();if(INV.length)CID=INV[0].id;R();
+}
+
+// ==================== INIT ====================
+checkDisclaimer();
+</script>
+</body>
+</html>
